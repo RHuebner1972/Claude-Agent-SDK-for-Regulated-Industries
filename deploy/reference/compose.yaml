@@ -1,0 +1,57 @@
+# Reference architecture for aml-triage at Bayside Community Bank (M10-L08). Synthetic; fictional hosts.
+#
+#   agent ──(internal network only)──> model-gateway ──PrivateLink──> Amazon Bedrock (us.* profile)
+#     │                                (holds the IAM role; signs requests; the agent holds no AWS credentials)
+#     └──────(internal network only)──> egress-proxy ──allowlist──> core-banking.bayside.example
+#                                       (injects a 15-minute scoped token; logs every request)
+#
+# The agent container has no route to the internet: the agent-internal network is `internal: true`, so the only
+# way out is through the two services that sit on both networks. Validate with:
+#   uv run python -m sentinel.deploy reference deploy/reference --agent aml-triage
+name: sentinel-aml-triage
+
+services:
+  agent:
+    image: "123456789012.dkr.ecr.us-east-1.amazonaws.com/sentinel/aml-triage@sha256:7d0a3c6f9b2e5d8a1c4f7b0e3a6d9c2f5b8e1a4d7c0f3b6e9a2d5c8f1b4e7a0d"
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true", "seccomp=./seccomp-agent.json"]
+    tmpfs:
+      - "/tmp:rw,noexec,nosuid,size=100m"
+      - "/workspace:rw,noexec,nosuid,size=500m"
+    pids_limit: 100
+    mem_limit: 2g
+    cpus: 1.0
+    environment:
+      CLAUDE_CODE_USE_BEDROCK: "1"
+      AWS_REGION: us-east-1
+      ANTHROPIC_BEDROCK_BASE_URL: "http://model-gateway:8080"   # the gateway signs and forwards
+      CLAUDE_CODE_SKIP_BEDROCK_AUTH: "1"                         # so the agent needs no AWS credentials
+      HTTPS_PROXY: "http://egress-proxy:3128"
+      HTTP_PROXY: "http://egress-proxy:3128"
+      NO_PROXY: "model-gateway"
+      CLAUDE_CONFIG_DIR: /tmp/claude-config                      # SDK's local transcript copy dies with the container
+      CLAUDE_CODE_DISABLE_AUTO_MEMORY: "1"
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"                # no telemetry or error reports from the CLI
+      FLEET_FILE: /app/src/sentinel/monitoring/policies/fleet-prod.yaml
+    networks: [agent-internal]
+
+  model-gateway:
+    # An LLM gateway you operate (for example Envoy or LiteLLM). It runs with the task's IAM role, signs requests
+    # to Bedrock over the PrivateLink endpoint, and logs metadata for the audit trail.
+    image: "registry.bayside.example/platform/llm-gateway@sha256:1c4f7a0d3b6e9c2f5a8d1b4e7c0f3a6d9b2e5c8f1a4d7e0b3c6f9a2d5e8b1c4f"
+    environment:
+      UPSTREAM: "https://bedrock-runtime.us-east-1.amazonaws.com"   # resolves to the VPC endpoint inside the VPC
+      ALLOWED_INFERENCE_PROFILES: "us.*"
+    networks: [agent-internal, egress]
+
+  egress-proxy:
+    image: "registry.bayside.example/platform/squid@sha256:8e1a4d7b0c3e6f9a2d5b8e1c4f7a0d3b6e9c2f5a8d1b4e7c0f3a6d9b2e5c8f1a"
+    volumes: ["./egress-proxy/squid.conf:/etc/squid/squid.conf:ro"]
+    networks: [agent-internal, egress]
+
+networks:
+  agent-internal:
+    internal: true
+  egress: {}

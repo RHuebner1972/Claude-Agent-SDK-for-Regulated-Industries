@@ -1,0 +1,124 @@
+# Production deployment manifest for the course fleet (M10). Synthetic organizations, fictional hosts (*.example).
+#
+# Every agent declares where Claude runs, under which agreements, what its data demands, and its runtime controls.
+# `python -m sentinel.deploy preflight` checks this file against the path catalog (deployment_paths.yaml) and the
+# course baselines. The production fleet manifest lists this file in every agent's configs: bump `version` when you
+# change it, because the change control check will ask for a change record (rubric 7.4).
+#
+# Retention periods cite the regulation or the organization's policy that sets them. Where a regulation doesn't
+# fix a period for agent logs, the basis says so and names the policy decision. Confirm with records management
+# and counsel. Not legal advice.
+name: deployment
+version: 1.0.0
+as_of: "2026-10-28"
+agents:
+  ledgerbot:
+    path: claude-api
+    region: "US only (inference_geo: us, enforced as the workspace default)"
+    endpoint: api.anthropic.com
+    requirements: {us_residency: true}
+    agreements: ["Anthropic Commercial Terms", "Anthropic Data Processing Addendum"]
+    audit_storage: {service: "S3 Object Lock", mode: COMPLIANCE, location: "s3://acme-finance-agent-audit (us-east-1)", retain_days: 2557}
+    retention:
+      - {data_class: audit_log, min_days: 2557, worm: true, where: "S3 Object Lock", basis: "SOX §802 and SEC Reg S-X Rule 2-06: the auditor keeps audit records seven years, so the company keeps the evidence they rely on as long"}
+      - {data_class: approval_record, min_days: 2557, worm: true, where: "S3 Object Lock", basis: "Same as the audit log: recommendations and approvals are ICFR evidence"}
+      - {data_class: session_transcript, max_days: 30, where: "TranscriptStore (S3, SSE-KMS)", basis: "Acme data-minimisation policy: transcripts kept for a 30-day support window"}
+      - {data_class: tool_cache, max_days: 1, where: "container tmpfs", basis: "Working data only: discarded with the container"}
+      - {data_class: provider_prompt_cache, max_days: 0, where: "Anthropic", basis: "Anthropic deletes cached prompts after the cache TTL (5 minutes by default, 1 hour if requested)"}
+    identity: {principal: "svc:ledgerbot@acme-finance-prod", provider: oidc-client-credentials, max_ttl_s: 900, scopes: ["journal:read", "vendor:read", "recommendation:write"], secret_source: "Vault kv/agents/ledgerbot, read by the egress proxy only"}
+    sandbox:
+      image: "registry.acme-finance.example/sentinel/ledgerbot@sha256:4f6a0c2d9b1e7a35c8d2e6f0a9b3c7d1e5f2a8b4c6d0e3f7a1b5c9d2e4f6a8b0"
+      seccomp_profile: /etc/sentinel/seccomp-agent.json
+      user: "10001:10001"
+      tmpfs: {/tmp: "rw,noexec,nosuid,size=100m", /workspace: "rw,noexec,nosuid,size=500m"}
+      egress_allowlist: [api.anthropic.com, erp.acme-finance.example]
+
+  pa-reviewer:
+    path: bedrock
+    region: "us-east-2, US geographic cross-region inference profile (us.*) only"
+    endpoint: bedrock-runtime.us-east-2.amazonaws.com
+    requirements: {phi: true, us_residency: true, private_network: true, cloud_processor: true}
+    agreements: ["AWS Business Associate Addendum (BAA)", "AWS Customer Agreement"]
+    audit_storage: {service: "S3 Object Lock", mode: COMPLIANCE, location: "s3://northshore-agent-audit (us-east-2)", retain_days: 2192}
+    retention:
+      - {data_class: audit_log, min_days: 2192, worm: true, where: "S3 Object Lock", basis: "HIPAA 45 CFR 164.316(b)(2)(i) six-year retention, applied to agent audit logs by Northshore policy"}
+      - {data_class: approval_record, min_days: 2192, worm: true, where: "S3 Object Lock", basis: "Same as the audit log"}
+      - {data_class: session_transcript, max_days: 7, where: "TranscriptStore (S3, SSE-KMS, BAA-covered account)", basis: "Minimum necessary: transcripts hold PHI, so they are deleted 7 days after the session unless under legal hold"}
+      - {data_class: vault_entry, max_days: 365, where: "re-identification vault", basis: "Northshore privacy policy: tokens expire one year after case closure"}
+      - {data_class: provider_prompt_cache, max_days: 0, where: "AWS (Bedrock)", basis: "Prompt cache held by the provider only for the cache TTL"}
+    identity: {principal: "svc:pa-reviewer@northshore-um-prod", provider: aws-sts, max_ttl_s: 900, scopes: ["criteria:read", "pa-case:read:minimum", "pa-recommendation:write"], secret_source: "No long-lived key: IAM role assumed by the task; the proxy adds tool credentials"}
+    sandbox:
+      image: "registry.northshore.example/sentinel/pa-reviewer@sha256:9c1e4b7a2d5f8e0c3b6a9d2f5e8b1c4a7d0e3f6b9c2a5d8e1f4b7c0a3d6e9f2b"
+      seccomp_profile: /etc/sentinel/seccomp-agent.json
+      user: "10001:10001"
+      tmpfs: {/tmp: "rw,noexec,nosuid,size=100m", /workspace: "rw,noexec,nosuid,size=500m"}
+      egress_allowlist: [bedrock-runtime.us-east-2.amazonaws.com, um-api.northshore.example]
+    notes: >-
+      Why Bedrock and not the Claude API: the Agent SDK runs the Claude Code CLI, and Anthropic documents Claude Code
+      as not covered by the API's HIPAA readiness (without the HIPAA configuration, Claude Code needs ZDR for BAA
+      coverage). The AWS BAA covers the Bedrock model calls. Set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 so the CLI
+      sends no telemetry or error reports anywhere else. Confirm Bedrock model eligibility under the AWS BAA.
+
+  complaint-triage:
+    path: google-agent-platform
+    region: us-east5
+    endpoint: us-east5-aiplatform.googleapis.com
+    requirements: {phi: true, us_residency: true, private_network: true, cloud_processor: true}
+    agreements: ["Google Cloud Business Associate Agreement", "Google Cloud data processing terms"]
+    audit_storage: {service: "Cloud Storage bucket lock (locked retention policy)", mode: COMPLIANCE, location: "gs://harborline-qms-agent-audit (us-east5)", retain_days: 3653}
+    retention:
+      - {data_class: audit_log, min_days: 3653, worm: true, where: "GCS bucket lock", basis: "21 CFR 11.10(e): audit trails kept as long as the subject records; Harborline's QMS record-retention procedure sets ten years"}
+      - {data_class: approval_record, min_days: 3653, worm: true, where: "GCS bucket lock", basis: "Same as the audit log (11.50 signature records)"}
+      - {data_class: session_transcript, max_days: 14, where: "TranscriptStore (GCS, CMEK)", basis: "Transcripts aren't the QMS record (the complaint file is): deleted after 14 days"}
+      - {data_class: tool_cache, max_days: 1, where: "container tmpfs", basis: "Working data only"}
+    identity: {principal: "svc:complaint-triage@harborline-qms-prod", provider: gcp-workload-identity-federation, max_ttl_s: 900, scopes: ["complaints:read", "complaints:note", "mdr:assess"], secret_source: "No long-lived key: federated short-lived tokens"}
+    sandbox:
+      image: "us-east5-docker.pkg.dev/harborline-qms/sentinel/complaint-triage@sha256:2b5e8a1d4c7f0e3a6b9d2c5f8e1a4d7b0c3e6f9a2d5b8e1c4f7a0d3b6e9c2f5a"
+      seccomp_profile: /etc/sentinel/seccomp-agent.json
+      user: "10001:10001"
+      tmpfs: {/tmp: "rw,noexec,nosuid,size=100m", /workspace: "rw,noexec,nosuid,size=500m"}
+      egress_allowlist: [us-east5-aiplatform.googleapis.com, qms.harborline.example]
+
+  aml-triage:
+    path: bedrock
+    region: "us-east-1, US geographic cross-region inference profile (us.*) only"
+    endpoint: bedrock-runtime.us-east-1.amazonaws.com
+    requirements: {us_residency: true, private_network: true, cloud_processor: true}
+    agreements: ["AWS Customer Agreement", "Bayside third-party risk assessment of AWS (service-provider oversight)"]
+    audit_storage: {service: "S3 Object Lock", mode: COMPLIANCE, location: "s3://bayside-bsa-agent-audit (us-east-1)", retain_days: 1827}
+    retention:
+      - {data_class: audit_log, min_days: 1827, worm: true, where: "S3 Object Lock", basis: "23 NYCRR 500.6(b) five years; BSA records five years (31 CFR 1010.430(d))"}
+      - {data_class: approval_record, min_days: 1827, worm: true, where: "S3 Object Lock", basis: "SAR decisions and supporting documentation five years (31 CFR 1020.320(d))"}
+      - {data_class: session_transcript, max_days: 30, where: "TranscriptStore (S3, SSE-KMS)", basis: "Transcripts can reveal SAR deliberations (31 CFR 1020.320(e)): kept only until the case note is final"}
+      - {data_class: tool_cache, max_days: 1, where: "container tmpfs", basis: "Working data only"}
+    identity: {principal: "svc:aml-triage@bayside-bsa-prod", provider: aws-sts, max_ttl_s: 900, scopes: ["alerts:read", "customers:read", "cases:note", "sar:recommend"], secret_source: "No long-lived key: IAM role assumed by the task, credentials added by the proxy"}
+    sandbox:
+      image: "123456789012.dkr.ecr.us-east-1.amazonaws.com/sentinel/aml-triage@sha256:7d0a3c6f9b2e5d8a1c4f7b0e3a6d9c2f5b8e1a4d7c0f3b6e9a2d5c8f1b4e7a0d"
+      seccomp_profile: /etc/sentinel/seccomp-agent.json
+      user: "10001:10001"
+      tmpfs: {/tmp: "rw,noexec,nosuid,size=100m", /workspace: "rw,noexec,nosuid,size=500m"}
+      egress_allowlist: [bedrock-runtime.us-east-1.amazonaws.com, core-banking.bayside.example]
+
+  ccb-assistant:
+    path: bedrock-govcloud
+    region: us-gov-west-1
+    endpoint: bedrock-runtime.us-gov-west-1.amazonaws.com
+    requirements: {fedramp: high, il: 4, itar: true, us_residency: true, private_network: true, cloud_processor: true}
+    agreements: ["AWS GovCloud (US) agreement", "DFARS 252.204-7012 obligations flowed down to the cloud service"]
+    audit_storage: {service: "S3 Object Lock (GovCloud)", mode: COMPLIANCE, location: "s3://northgate-enclave-audit (us-gov-west-1)", retain_days: 1096}
+    retention:
+      - {data_class: audit_log, min_days: 1096, worm: true, where: "S3 Object Lock (GovCloud)", basis: "NIST SP 800-171 3.3.1 sets no period (retain as needed to investigate); Northgate policy three years unless the contract requires longer"}
+      - {data_class: session_transcript, max_days: 7, where: "TranscriptStore (GovCloud S3, SSE-KMS)", basis: "CUI minimization: enclave transcripts deleted once the CCB record is approved"}
+      - {data_class: tool_cache, max_days: 1, where: "container tmpfs", basis: "Working data only"}
+    identity: {principal: "svc:ccb-assistant@northgate-enclave", provider: aws-sts, max_ttl_s: 900, scopes: ["ecr:read", "drawings:read:enclave", "ccb:schedule", "agenda:draft"], secret_source: "No long-lived key: IAM role in GovCloud"}
+    sandbox:
+      image: "123456789012.dkr.ecr.us-gov-west-1.amazonaws.com/sentinel/ccb-assistant@sha256:5a8d1b4e7c0f3a6d9b2e5c8f1a4d7e0b3c6f9a2d5e8b1c4f7a0e3d6b9c2f5a8d"
+      runtime: runsc
+      seccomp_profile: /etc/sentinel/seccomp-agent.json
+      user: "10001:10001"
+      tmpfs: {/tmp: "rw,noexec,nosuid,size=100m", /workspace: "rw,noexec,nosuid,size=500m"}
+      egress_allowlist: [bedrock-runtime.us-gov-west-1.amazonaws.com, plm-enclave.northgate.example]
+    notes: >-
+      Confirm the fleet's model is available in GovCloud before relying on this path (GovCloud offers fewer Claude
+      models). Before using this agent in performance of a Department of War contract, check for contracting-officer
+      direction on Anthropic products (the FASCSA exclusion order upheld by the D.C. Circuit in Sep 2026).

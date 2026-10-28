@@ -1,0 +1,73 @@
+# Alert rules for the fleet (synthetic, for course use). Rubric 7.3.
+# Each rule names the metric, how to aggregate it per agent, the threshold, a severity and the runbook section.
+# page = someone acts now (possible incident); ticket = fix within the business day; info = review weekly.
+name: fleet-alerts
+version: 1.0.0
+rules:
+  - id: ALR-LEAK
+    title: Restricted data found outside its boundary
+    metric: agent.restricted_data.leaks
+    agg: sum
+    op: ">"
+    threshold: 0
+    severity: page
+    runbook: "IR-2 Possible data exposure: contain, preserve logs, start the notification clock"
+  - id: ALR-AUDIT
+    title: Audit log failed verification
+    metric: assurance.audit.verifications
+    where: {result: failed}
+    agg: sum
+    op: ">"
+    threshold: 0
+    severity: page
+    runbook: "IR-4 Evidence integrity: freeze the log, compare with WORM copy"
+  - id: ALR-DENY-RATE
+    title: Unusual share of tool calls denied
+    metric: agent.tool.calls
+    agg: deny_rate
+    op: ">"
+    threshold: 0.35
+    severity: ticket
+    runbook: "IR-1 Agent misbehaving or under attack: review denials by rule, check for injection"
+  - id: ALR-APPROVAL-EXPIRED
+    title: An approval request expired without a decision
+    metric: agent.approvals
+    where: {status: expired}
+    agg: sum
+    op: ">"
+    threshold: 0
+    severity: ticket
+    runbook: "Oversight: find out why nobody decided; check the approver roster"
+  - id: ALR-APPROVAL-SLOW
+    title: Approvals taking too long (p95)
+    metric: agent.approval.latency
+    agg: p95
+    op: ">"
+    threshold: 14400
+    severity: ticket
+    runbook: "Oversight: staffing or routing problem; regulatory clocks may be at risk"
+  - id: ALR-HANDOFF
+    title: A subagent handoff was rejected at a boundary
+    metric: agent.boundary.handoffs
+    where: {result: rejected}
+    agg: sum
+    op: ">"
+    threshold: 0
+    severity: ticket
+    runbook: "IR-3 Boundary pressure: read the enclave log; tighten the subagent prompt or contract"
+  - id: ALR-COST
+    title: Model cost per run above budget
+    metric: agent.cost.usd
+    agg: per_run
+    op: ">"
+    threshold: 0.50
+    severity: info
+    runbook: "Cost: check for loops, long contexts or a model change"
+  - id: ALR-ERRORS
+    title: Tool failures or failed runs
+    metric: agent.errors
+    agg: sum
+    op: ">"
+    threshold: 0
+    severity: ticket
+    runbook: "Reliability: read the failing tool's errors; a failing control may be failing open"

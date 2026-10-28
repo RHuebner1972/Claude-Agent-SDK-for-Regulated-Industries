@@ -1,0 +1,113 @@
+# Complaint-handling policy for the Harborline Medical triage assistant (synthetic, for course use).
+# Owned by Quality Assurance. Changes go through change control: edit, bump the version, run
+# tests/test_m05_offline.py, get QA + Regulatory Affairs sign-off, then deploy. (Rubric 4.1, 4.6)
+#
+# How it is evaluated: every rule whose tools and conditions match is collected.
+# Any matching deny wins. Otherwise, if an allow matches, a matching ask turns it into "needs a human".
+# If no allow matches, the call is DENIED (default_effect): an ask rule alone never grants a tool.
+name: complaint-handling
+version: 1.0.0
+default_effect: deny
+
+rules:
+  # ---- purpose limitation ------------------------------------------------------------------
+  - id: PUR-001
+    description: The triage assistant may only be used for complaint handling
+    effect: deny
+    tools: ["*"]
+    when:
+      - {field: subject.purpose, op: ne, value: complaint_handling}
+    citation: SOP-CH-004 rule 7
+
+  # ---- what each role may do (least privilege) --------------------------------------------
+  - id: READ-001
+    description: Complaint staff may list, read and search complaints
+    effect: allow
+    tools: [list_complaints, get_complaint, search_similar]
+    when:
+      - {field: subject.role, op: in, value: [complaint_intake, qa_specialist, regulatory_affairs]}
+    citation: SOP-CH-004 rule 7
+
+  - id: NOTE-001
+    description: Complaint staff may add investigation notes
+    effect: allow
+    tools: [add_investigation_note]
+    when:
+      - {field: subject.role, op: in, value: [complaint_intake, qa_specialist, regulatory_affairs]}
+    citation: SOP-CH-004 rule 7
+
+  - id: MDR-010
+    description: Only Regulatory Affairs records the MDR reportability determination
+    effect: allow
+    tools: [set_mdr_assessment]
+    when:
+      - {field: subject.role, op: eq, value: regulatory_affairs}
+    citation: SOP-CH-004 rule 2; 21 CFR 803
+
+  - id: QA-001
+    description: Only QA specialists close complaints
+    effect: allow
+    tools: [close_complaint]
+    when:
+      - {field: subject.role, op: eq, value: qa_specialist}
+    citation: SOP-CH-004 rule 4
+
+  - id: COM-002
+    description: Intake and QA staff may email the complainant about their complaint
+    effect: allow
+    tools: [send_customer_email]
+    when:
+      - {field: subject.role, op: in, value: [complaint_intake, qa_specialist]}
+    citation: SOP-CH-004 rule 5
+
+  # ---- state-dependent guards: look at the RECORD, not just the request ---------------------
+  - id: MDR-001
+    description: A complaint cannot be closed before Regulatory Affairs makes the MDR determination
+    effect: deny
+    tools: [close_complaint]
+    when:
+      - {field: resource.mdr_assessment, op: eq, value: pending}
+    citation: SOP-CH-004 rule 2; 21 CFR 803
+
+  - id: MDR-002
+    description: An MDR-reportable complaint cannot be closed until the MDR is filed
+    effect: deny
+    tools: [close_complaint]
+    when:
+      - {field: resource.mdr_assessment, op: eq, value: reportable}
+      - {field: resource.mdr_filed, op: eq, value: false}
+    citation: SOP-CH-004 rule 3; 21 CFR 803.50
+
+  - id: COM-001
+    description: Complaint emails go only to the complainant on file
+    effect: deny
+    tools: [send_customer_email]
+    when:
+      - {field: input.to, op: ne, value: $resource.complainant.email}
+    citation: SOP-CH-004 rule 5
+
+  # ---- untrusted content: once the agent has read outsider text, raise the bar ---------------
+  - id: INJ-001
+    description: A not-reportable determination made after reading complaint text needs human confirmation
+    effect: ask
+    tools: [set_mdr_assessment]
+    when:
+      - {field: input.decision, op: eq, value: not_reportable}
+      - {field: environment.tainted, op: eq, value: true}
+    citation: SOP-CH-004 rule 6
+
+  - id: INJ-002
+    description: Outbound email after reading complaint text needs human confirmation
+    effect: ask
+    tools: [send_customer_email]
+    when:
+      - {field: environment.tainted, op: eq, value: true}
+    citation: SOP-CH-004 rule 6
+
+  - id: INJ-003
+    description: Instruction-like text was found in complaint data this session; privileged actions wait for human review
+    effect: deny
+    tools: [set_mdr_assessment, close_complaint, send_customer_email]
+    when:
+      - {field: environment.injection_suspected, op: eq, value: true}
+    citation: SOP-CH-004 rule 6

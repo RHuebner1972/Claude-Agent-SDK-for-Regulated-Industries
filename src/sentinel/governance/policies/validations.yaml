@@ -1,0 +1,107 @@
+# Validation records for the course fleet (M11-L03, L04). Synthetic organizations and people.
+#
+# A validation record says: for THIS intended use, THIS configuration (the fleet fingerprint) is fit, on THIS
+# evidence, as judged by someone who didn't build it. Change the configuration and the record goes stale: the
+# lint compares validated_fingerprint with the fingerprint in the production fleet manifest.
+#
+# framework:
+#   CSA         FDA Computer Software Assurance for Production and Quality Management System Software (final
+#               Sep 2025, reissued Feb 2026): intended use -> risk-based approach -> assurance activities ->
+#               records. For high process risk it suggests more rigor, such as scripted or hybrid testing; lower
+#               risk can use unscripted. "High process risk needs a scripted activity" (VAL-002) is a COURSE rule.
+#   MRM         Model risk management disciplines applied by bank policy. SR 26-2 (17 Apr 2026; it also superseded
+#               SR 21-8 on BSA/AML models) keeps independent
+#               validation and ongoing monitoring at its core but puts generative and agentic AI out of its scope,
+#               so the bank's AI policy applies the classic elements: conceptual soundness, outcomes analysis,
+#               ongoing monitoring and effective challenge.
+#   RISK-BASED  The organization's own risk-based validation procedure (NIST AI RMF MEASURE, ISO/IEC 42001).
+#
+#   uv run python -m sentinel.governance validate
+name: validation-records
+version: 1.0.0
+as_of: "2026-10-28"
+records:
+  - id: VAL-LB-001
+    agent: ledgerbot
+    framework: RISK-BASED
+    intended_use: "Recommend approve, hold or escalate on pending journal entries; an accountant decides."
+    process_risk: not_high
+    developer: "D. Alvarez, Platform Engineering"
+    validator: "J. Park, Finance Controls"
+    validated_fingerprint: "fp:d35513de7d7ca89d"
+    date: "2026-10-28"
+    activities:
+      - {method: scripted, what: "Compliance suite: audit, allowlist and approval tests", evidence: "rubric:7.1", result: pass}
+      - {method: unscripted, what: "Accountant reviewed 50 synthetic entries with planted duplicates", evidence: "Lab 1 synthetic journal entries", result: "47 of 50 flagged as an accountant would"}
+      - {method: ongoing_monitoring, what: "Dashboard and alert rules", evidence: "rubric:7.3", result: pass}
+    conclusion: fit
+    revalidate_on: [model, tools, permission_mode, controls]
+
+  - id: VAL-PA-001
+    agent: pa-reviewer
+    framework: RISK-BASED
+    intended_use: "Summarize a prior authorization request against published criteria and draft a recommendation for a clinician."
+    process_risk: high
+    developer: "D. Alvarez, Platform Engineering"
+    validator: "K. Ito, Clinical AI Governance"
+    validated_fingerprint: "fp:7534995f652a6640"
+    date: "2026-10-28"
+    activities:
+      - {method: scripted, what: "Compliance suite incl. PHI masking and minimum-necessary tests", evidence: "rubric:2.2", result: pass}
+      - {method: outcomes_analysis, what: "Drafts vs. clinician decisions on 120 labeled synthetic cases", evidence: "Lab 2 synthetic prior authorization cases", result: "agreement 94%; every disagreement was 'needs more information'"}
+      - {method: red_team, what: "Injection and exfiltration suite", evidence: "rubric:7.2", result: "13/13 defended"}
+    conclusion: fit_with_conditions
+    conditions: ["Denials always route to a clinician; the agent never issues one"]
+    revalidate_on: [model, tools, prompt_version, controls]
+
+  - id: VAL-CT-001
+    agent: complaint-triage
+    framework: CSA
+    intended_use: "Propose MDR reportability assessments and draft investigation notes for QA, in the complaint-handling process."
+    process_risk: high
+    developer: "D. Alvarez, Platform Engineering"
+    validator: "L. Moreau, Quality Engineering (validation)"
+    validated_fingerprint: "fp:8557a9fe7b6cec33"
+    date: "2026-10-28"
+    activities:
+      - {method: scripted, what: "Policy tests: no close without a signed MDR assessment", evidence: "rubric:4.2", result: pass}
+      - {method: scripted, what: "Regression set: 40 labeled synthetic complaints, 12 reportable", evidence: "rubric:7.1", result: "12/12 reportable proposed as reportable"}
+      - {method: unscripted, what: "QA engineer error-guessing session on ambiguous narratives", evidence: "Lab 3 exploratory test log", result: "2 wording issues, fixed before release"}
+      - {method: ongoing_monitoring, what: "Denials and approval latency alerts", evidence: "rubric:7.3", result: pass}
+    conclusion: fit
+    revalidate_on: [model, tools, prompt_version, configs, controls]
+
+  - id: VAL-AML-001
+    agent: aml-triage
+    framework: MRM
+    intended_use: "Triage transaction-monitoring alerts and recommend close or SAR for an analyst."
+    process_risk: high
+    developer: "D. Alvarez, Platform Engineering"
+    validator: "T. Nguyen, Model Risk Management"
+    validated_fingerprint: "fp:c869c1ed3b4762f2"
+    date: "2026-10-28"
+    activities:
+      - {method: conceptual_soundness, what: "Design review: tools, policy, approval gate; vendor model documentation reviewed (Claude via Amazon Bedrock)", evidence: "rubric:5.1", result: "sound for a recommend-only role"}
+      - {method: outcomes_analysis, what: "Back-test against analyst dispositions on 300 labeled synthetic alerts", evidence: "Lab 4 synthetic alerts", result: "SAR recall 100% (24/24); 9% of closes escalated unnecessarily"}
+      - {method: ongoing_monitoring, what: "Alert rules: approval latency, denials, cost", evidence: "rubric:7.3", result: pass}
+      - {method: effective_challenge, what: "Independent review session challenged the incident runbook", evidence: "rubric:7.5", result: "challenged: banking 36-hour clock missing"}
+    conclusion: fit_with_conditions
+    conditions: ["Close the 7.5 challenge (36-hour banking clock and a banking tabletop) by 2026-11-30",
+                 "Every close stays analyst-approved; re-run the back-test quarterly"]
+    revalidate_on: [model, tools, prompt_version, configs, controls]
+
+  - id: VAL-CCB-001
+    agent: ccb-assistant
+    framework: RISK-BASED
+    intended_use: "Prepare configuration control board agendas, delegating CUI work to authorized subagents."
+    process_risk: high
+    developer: "D. Alvarez, Platform Engineering"
+    validator: "H. Kowalski, Security Compliance"
+    validated_fingerprint: "fp:05db37c7ca8279a9"
+    date: "2026-10-28"
+    activities:
+      - {method: scripted, what: "Boundary tests: markings can't reach unauthorized subagents", evidence: "rubric:6.5", result: pass}
+      - {method: scripted, what: "Handoff contract tests strip technical fields", evidence: "rubric:6.2", result: pass}
+      - {method: red_team, what: "Injection and exfiltration suite", evidence: "rubric:7.2", result: "13/13 defended"}
+    conclusion: fit
+    revalidate_on: [model, tools, configs, controls]

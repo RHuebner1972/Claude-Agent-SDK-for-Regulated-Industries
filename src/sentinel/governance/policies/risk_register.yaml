@@ -1,0 +1,212 @@
+# Agent risk register as an FMEA (M11-L02). Synthetic organizations and people.
+#
+# One row per failure mode: the agent step, what goes wrong, the effect on people or the organization, the cause,
+# the controls in place today (each tied to a rubric item, so the register knows when a control stops being
+# confirmed), and three ratings made WITH those controls in place:
+#   severity (S): how bad the effect is; occurrence (O): how likely the cause is; detection (D): how likely the
+#   failure escapes before it causes the effect (10 = we would never see it).
+# Priority is computed severity-first (sentinel.governance.risk.priority), not by S x O x D. RPN is shown only
+# for comparison: it ranks a frequent nuisance above a rare harm, which is why the AIAG-VDA FMEA handbook (2019)
+# replaced it with Action Priority. The course rule is simpler than AIAG-VDA's table: use your organization's.
+#
+# A High row needs an action (owner and due date) or an acceptance by the risk committee. A Medium row can be
+# accepted by someone other than its owner. Acceptances expire.
+#
+#   uv run python -m sentinel.governance risks --agent aml-triage
+name: agent-risk-register
+version: 1.0.0
+as_of: "2026-10-28"
+scales:
+  severity:
+    10: "Harm to a person (patient or consumer safety)"
+    9: "Breach of a legal duty: a missed mandated report or notice, or an unlawful disclosure"
+    8: "Wrong adverse decision about a person, or exposure of regulated data, caught before harm"
+    7: "Quality or financial misstatement that reaches a record others rely on"
+    5: "Rework for staff; a customer gets a wrong or late answer"
+    3: "Nuisance: wasted time, no wrong outcome"
+    1: "No noticeable effect"
+  occurrence:
+    8: "Weekly or more"
+    6: "Monthly"
+    4: "A few times a year"
+    3: "Seen in testing, not in production"
+    2: "Only under a deliberate attack or several failures at once"
+    1: "Prevented by design"
+  detection:
+    9: "No control would show it"
+    7: "Found only by a periodic review or an outside party"
+    5: "Found by monitoring within days"
+    3: "Blocked or flagged by a control before the effect, most of the time"
+    2: "Blocked by a tested control every time"
+    1: "Cannot happen: the capability doesn't exist"
+failure_modes:
+  # ------------------------------------------------------------------ aml-triage (Bayside Community Bank)
+  - id: FM-AML-01
+    agent: aml-triage
+    step: "Recommend a disposition"
+    failure_mode: "Recommends closing an alert that warranted a SAR"
+    effect: "A SAR is late or never filed (BSA duty); the bank misses criminal activity"
+    cause: "Incomplete customer history; an instruction planted in a wire memo"
+    controls:
+      - {rubric: "5.1", how: "Every close needs an analyst's approval"}
+      - {rubric: "4.2", how: "Policy blocks close when the alert has open red flags"}
+      - {rubric: "4.5", how: "Injection tests: a planted memo instruction cannot change what the agent may do"}
+    s: 9
+    o: 3
+    d: 4
+    owner: "D. Okafor, BSA Officer"
+    acceptance: {by: "S. Patel, Chief Compliance Officer", date: "2026-10-21", expires: "2027-04-30", rationale: "Analyst approval and red-team coverage confirmed; outcomes analysis quarterly"}
+  - id: FM-AML-02
+    agent: aml-triage
+    step: "Escalate an incident"
+    failure_mode: "An agent compromise or outage isn't notified to the bank's regulator in time"
+    effect: "The notice for a notification incident (one that materially disrupts operations) misses its 36 hours from determination (12 CFR 53 / 225 subpart N / 304 subpart C)"
+    cause: "The incident runbook has no 36-hour banking clock; only a HIPAA tabletop was run"
+    controls:
+      - {rubric: "7.5", how: "Incident runbook and tabletop"}
+      - {rubric: "7.3", how: "Alert rules page the on-call engineer"}
+    s: 9
+    o: 4
+    d: 7
+    owner: "S. Patel, Chief Compliance Officer"
+    action: {what: "Add the 36-hour banking clock to notification_clocks and run a banking tabletop", owner: "D. Alvarez, Platform Engineering", due: "2026-11-30"}
+  - id: FM-AML-03
+    agent: aml-triage
+    step: "Restrict an account"
+    failure_mode: "Restricts a customer's account without basis"
+    effect: "Customer loses access to funds; complaint and reputational harm"
+    cause: "Misread transaction pattern"
+    controls:
+      - {rubric: "5.1", how: "restrict_account is gated: two approvals"}
+      - {rubric: "5.3", how: "Separation of duties: the requester can't approve"}
+    s: 8
+    o: 2
+    d: 2
+    owner: "D. Okafor, BSA Officer"
+  - id: FM-AML-04
+    agent: aml-triage
+    step: "Write case notes"
+    failure_mode: "SAR-confidential information reaches the customer or an unauthorized log"
+    effect: "Unlawful disclosure of a SAR (tipping off)"
+    cause: "Case-note text copied into another channel"
+    controls:
+      - {rubric: "3.1", how: "The agent has no tool that contacts customers"}
+      - {rubric: "2.2", how: "Log masking for case notes"}
+    s: 9
+    o: 2
+    d: 3
+    owner: "D. Okafor, BSA Officer"
+    acceptance: {by: "S. Patel, Chief Compliance Officer", date: "2026-10-21", expires: "2027-04-30", rationale: "No customer-facing tool exists; masking tested"}
+
+  # ------------------------------------------------------------------ complaint-triage (Harborline Medical)
+  - id: FM-CT-01
+    agent: complaint-triage
+    step: "Propose an MDR assessment"
+    failure_mode: "Proposes 'not reportable' for a complaint involving a death or serious injury"
+    effect: "A required Medical Device Report is late (21 CFR 803); patients stay exposed to the risk"
+    cause: "Ambiguous complaint narrative; the model weighs the customer's wording over the event facts"
+    controls:
+      - {rubric: "4.2", how: "Policy engine blocks closing without a signed MDR assessment"}
+      - {rubric: "5.4", how: "QA e-signature with meaning and timestamp (Part 11) on every assessment"}
+      - {rubric: "7.1", how: "Regression set of labeled reportable complaints runs in CI"}
+    s: 10
+    o: 3
+    d: 3
+    owner: "R. Patel, Quality Assurance"
+    acceptance: {by: "A. Novak, Regulatory Affairs", date: "2026-10-21", expires: "2027-04-30", rationale: "QA signs every assessment; regression set covers each reportable category"}
+  - id: FM-CT-02
+    agent: complaint-triage
+    step: "Email the customer"
+    failure_mode: "Sends an acknowledgement with wrong or unapproved content"
+    effect: "Customer confusion; a correction email"
+    cause: "Template filled from the wrong complaint"
+    controls:
+      - {rubric: "4.2", how: "Policy checks the template is approved and the recipient matches the complaint"}
+    s: 5
+    o: 3
+    d: 3
+    owner: "R. Patel, Quality Assurance"
+  - id: FM-CT-03
+    agent: complaint-triage
+    step: "Close a complaint"
+    failure_mode: "Closes a complaint before the investigation is complete"
+    effect: "Incomplete complaint file (21 CFR 820 / ISO 13485 8.2.2); an inspection finding"
+    cause: "Investigation note mistaken for a conclusion"
+    controls:
+      - {rubric: "4.2", how: "Policy requires an investigation conclusion and QA signature to close"}
+    s: 7
+    o: 3
+    d: 4
+    owner: "R. Patel, Quality Assurance"
+    acceptance: {by: "A. Novak, Regulatory Affairs", date: "2026-10-21", expires: "2027-04-30", rationale: "Close is policy-blocked without a conclusion"}
+  - id: FM-CT-04
+    agent: complaint-triage
+    step: "Search similar complaints"
+    failure_mode: "Suggests unrelated complaints as similar"
+    effect: "Investigators waste time dismissing suggestions"
+    cause: "Embedding search over short narratives"
+    controls: []
+    s: 3
+    o: 7
+    d: 6
+    owner: "R. Patel, Quality Assurance"
+
+  # ------------------------------------------------------------------ pa-reviewer (Northshore Health Plan)
+  - id: FM-PA-01
+    agent: pa-reviewer
+    step: "Draft a recommendation"
+    failure_mode: "Drafts 'does not meet criteria' when the record meets them"
+    effect: "A member's care is delayed if the reviewer follows the draft"
+    cause: "Criterion evidence sits in an attachment the summary skipped"
+    controls:
+      - {rubric: "5.1", how: "A clinician decides every case; the agent can't deny"}
+      - {rubric: "5.2", how: "The reviewer sees the cited criterion and its evidence in one view (CHG-0006)"}
+    s: 8
+    o: 3
+    d: 3
+    owner: "D. Reyes, Utilization Management director"
+    acceptance: {by: "L. Brandt, Privacy Officer", date: "2026-10-21", expires: "2027-04-30", rationale: "Clinician decides; outcomes analysis shows agreement with clinicians on the labeled set"}
+  - id: FM-PA-02
+    agent: pa-reviewer
+    step: "Log the session"
+    failure_mode: "PHI appears in an audit or debug log"
+    effect: "Impermissible disclosure inside the organization"
+    cause: "A new field is added to a tool result without masking"
+    controls:
+      - {rubric: "2.2", how: "Token masking in logs, tested"}
+      - {rubric: "2.5", how: "Detector recall measured on a labeled set"}
+    s: 8
+    o: 2
+    d: 2
+    owner: "L. Brandt, Privacy Officer"
+
+  # ------------------------------------------------------------------ ledgerbot (finance team)
+  - id: FM-LB-01
+    agent: ledgerbot
+    step: "Recommend on a journal entry"
+    failure_mode: "Misses a duplicate vendor payment"
+    effect: "Overpayment recovered later; a control deficiency if it recurs"
+    cause: "Vendor name variants"
+    controls:
+      - {rubric: "5.1", how: "An accountant reviews every entry"}
+    s: 6
+    o: 4
+    d: 4
+    owner: "M. Hale, Controller"
+
+  # ------------------------------------------------------------------ ccb-assistant (Northgate Precision Components)
+  - id: FM-CCB-01
+    agent: ccb-assistant
+    step: "Delegate to a subagent"
+    failure_mode: "CUI or export-controlled technical data reaches a subagent not authorized for it"
+    effect: "Unauthorized disclosure of CUI or ITAR technical data; a reportable cyber incident (DFARS 7012)"
+    cause: "A new subagent card with a broad data scope"
+    controls:
+      - {rubric: "6.1", how: "Agent cards declare data scope; the guard enforces them"}
+      - {rubric: "6.2", how: "Typed handoff contracts strip technical fields"}
+      - {rubric: "6.5", how: "Boundary tests prove restricted data can't reach unauthorized agents"}
+    s: 10
+    o: 2
+    d: 2
+    owner: "M. Bell, Facility Security Officer"
+    acceptance: {by: "H. Kowalski, Security Compliance", date: "2026-10-21", expires: "2027-04-30", rationale: "Boundary tests run on every change"}

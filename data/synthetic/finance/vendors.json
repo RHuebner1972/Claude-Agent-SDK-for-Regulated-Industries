@@ -1,0 +1,34 @@
+[
+  {
+    "vendor_id": "V-201",
+    "name": "Harborline Consulting LLC",
+    "tax_id": "84-2917365",
+    "bank_routing": "021000089",
+    "bank_account": "4417002291",
+    "contact_email": "ap@harborline.example"
+  },
+  {
+    "vendor_id": "V-202",
+    "name": "Northwind Cloud Services",
+    "tax_id": "47-1180942",
+    "bank_routing": "026009593",
+    "bank_account": "9921880034",
+    "contact_email": "billing@northwind.example"
+  },
+  {
+    "vendor_id": "V-203",
+    "name": "Granite Peak Travel",
+    "tax_id": "91-5532018",
+    "bank_routing": "011000138",
+    "bank_account": "3300418872",
+    "contact_email": "accounts@granitepeak.example"
+  },
+  {
+    "vendor_id": "V-204",
+    "name": "Bluefin Analytics Inc",
+    "tax_id": "33-7741206",
+    "bank_routing": "121000358",
+    "bank_account": "7712049931",
+    "contact_email": "finance@bluefin.example"
+  }
+]

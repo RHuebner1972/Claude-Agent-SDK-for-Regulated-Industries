@@ -1,0 +1,15 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.audit/
+.vault/
+.pytest_cache/
+dist/
+output/
+# run output (audit logs, recommendations) lives in workspace/ folders; lab sample logs in labs/*/data/ ARE committed
+**/workspace/*
+!**/workspace/.gitkeep
+out/
+compliance-results.json
+redteam-report.json

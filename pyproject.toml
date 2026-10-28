@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claude-regulated-agents"
+version = "0.1.0"
+description = "Course repo: build compliant AI agents with the Claude Agent SDK"
+requires-python = ">=3.10"
+# Pin exact versions before recording (see 00_Course-Plan/Regulatory_Watchlist.md).
+dependencies = [
+  "claude-agent-sdk",
+  "pydantic>=2",
+  "pyyaml",
+  "python-dotenv",
+  "presidio-analyzer",
+  "presidio-anonymizer",
+  "cryptography",
+  # spaCy model for Presidio (Module 4). Swap for en_core_web_lg for better name recall.
+  "en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
+  "opentelemetry-sdk",
+  "faker",
+  "rich",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio", "ruff"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests", "labs", "compliance"]
+markers = ["control(*ids, agent=None): rubric item(s) a compliance test evidences (sentinel.monitoring.pytest_plugin)"]

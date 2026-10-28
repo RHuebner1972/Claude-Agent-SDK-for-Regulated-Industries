@@ -1,0 +1,98 @@
+[
+  {
+    "request_id": "PA-2001",
+    "patient_id": "P-001",
+    "provider_id": "PR-01",
+    "service_code": "72148",
+    "service": "MRI lumbar spine without contrast",
+    "icd10": "M54.16",
+    "diagnosis": "Lumbar radiculopathy",
+    "submitted": "2026-10-05",
+    "status": "pending_review",
+    "clinical_notes": "Maria Delgado (DOB 03/14/1961, MRN 4829173) reports 9 weeks of low back pain radiating to the left leg despite 6 weeks of physical therapy and NSAIDs. Positive straight-leg raise. Requesting MRI to evaluate for disc herniation. Contact patient at 617-555-0143."
+  },
+  {
+    "request_id": "PA-2002",
+    "patient_id": "P-002",
+    "provider_id": "PR-02",
+    "service_code": "E2103",
+    "service": "Continuous glucose monitor",
+    "icd10": "E11.65",
+    "diagnosis": "Type 2 diabetes with hyperglycemia",
+    "submitted": "2026-10-05",
+    "status": "pending_review",
+    "clinical_notes": "Mr. Okafor is on basal-bolus insulin (4 injections/day) with A1c 9.2%. Two documented hypoglycemic episodes last month. Member ID NEH553720481. Ordering provider Dr. Grace Lin, NPI 1672938028."
+  },
+  {
+    "request_id": "PA-2003",
+    "patient_id": "P-003",
+    "provider_id": "PR-03",
+    "service_code": "J0135",
+    "service": "Adalimumab injection",
+    "icd10": "M05.79",
+    "diagnosis": "Rheumatoid arthritis, multiple sites",
+    "submitted": "2026-10-05",
+    "status": "pending_review",
+    "clinical_notes": "Priya Raman has active RA (DAS28 5.1) after 3 months of methotrexate 20 mg weekly. TB screening negative. Patient email priya.raman@example.com for portal updates. Medical record # 6110458."
+  },
+  {
+    "request_id": "PA-2004",
+    "patient_id": "P-004",
+    "provider_id": "PR-04",
+    "service_code": "70553",
+    "service": "MRI brain with and without contrast",
+    "icd10": "R51.9",
+    "diagnosis": "Headache, unspecified",
+    "submitted": "2026-10-05",
+    "status": "pending_review",
+    "clinical_notes": "New-onset headaches for 3 weeks in a 77-year-old with no prior history. Neurological exam shows mild left pronator drift. Patient lives at 233 Washington St, Weymouth MA 02188. SSN on file 923-50-1188."
+  },
+  {
+    "request_id": "PA-2005",
+    "patient_id": "P-005",
+    "provider_id": "PR-05",
+    "service_code": "93306",
+    "service": "Transthoracic echocardiogram",
+    "icd10": "R01.1",
+    "diagnosis": "Cardiac murmur",
+    "submitted": "2026-10-05",
+    "status": "pending_review",
+    "clinical_notes": "Grade 2/6 systolic murmur found at an annual physical. No prior echo. Ms. Bennett (MRN 7728830) is asymptomatic; requesting baseline echo. Call back 617-555-0168."
+  },
+  {
+    "request_id": "PA-2006",
+    "patient_id": "P-006",
+    "provider_id": "PR-01",
+    "service_code": "29881",
+    "service": "Knee arthroscopy with meniscectomy",
+    "icd10": "S83.241A",
+    "diagnosis": "Medial meniscus tear, right knee",
+    "submitted": "2026-10-05",
+    "status": "pending_review",
+    "clinical_notes": "Right knee locking and effusion for 4 months after a fall on 06/02/2026. MRI confirms a bucket-handle tear. Failed 8 weeks of PT. Subscriber ID NEH221964730."
+  },
+  {
+    "request_id": "PA-2007",
+    "patient_id": "P-007",
+    "provider_id": "PR-02",
+    "service_code": "J1950",
+    "service": "Leuprolide injection",
+    "icd10": "E28.2",
+    "diagnosis": "Polycystic ovarian syndrome",
+    "submitted": "2026-10-05",
+    "status": "pending_review",
+    "clinical_notes": "Elena Petrova, born December 21, 1966, referred for hormonal therapy after failed oral contraceptive trial. Reach her at elena.petrova@example.com or 617-555-0191."
+  },
+  {
+    "request_id": "PA-2008",
+    "patient_id": "P-008",
+    "provider_id": "PR-04",
+    "service_code": "95810",
+    "service": "Polysomnography, attended",
+    "icd10": "G47.33",
+    "diagnosis": "Obstructive sleep apnea",
+    "submitted": "2026-10-05",
+    "status": "pending_review",
+    "clinical_notes": "Epworth Sleepiness Score 15, loud snoring, witnessed apneas. BMI 34. Marcus Hill works night shifts; MRN: 9013375. Requesting in-lab study."
+  }
+]

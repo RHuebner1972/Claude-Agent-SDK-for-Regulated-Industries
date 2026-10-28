@@ -1,0 +1,133 @@
+# Change records for the course fleet (synthetic, for course use). Rubric 7.4.
+# Every fingerprint in fleet.yaml must match an APPROVED record whose re-validation passed.
+# plans: the PCCP-style list of fields each agent may change as a "predetermined" change. A model change is
+# never predetermined. To change anything else: open a record, run the suite, get the approvals, then deploy.
+name: fleet-changes
+version: 1.0.0
+plans:
+  ledgerbot: [prompt_version]
+  pa-reviewer: [prompt_version]
+  complaint-triage: [prompt_version, configs]
+  aml-triage: [prompt_version]
+  ccb-assistant: [prompt_version]
+records:
+  - id: CHG-0001
+    agent: ledgerbot
+    summary: Initial production release of ledgerbot (Lab 1) after full validation
+    category: significant
+    changed: [initial]
+    to_fingerprint: "fp:1d25ac2ebe6bb5c4"
+    revalidation: {suite: compliance@baseline, result: passed, redteam: 13/13 defended, date: "2026-10-20"}
+    approvals:
+      - {name: M. Hale, role: Controller, date: "2026-10-21"}
+      - {name: R. Osei, role: Internal Audit, date: "2026-10-21"}
+    status: approved
+  - id: CHG-0002
+    agent: pa-reviewer
+    summary: Initial production release of pa-reviewer (Lab 2) after full validation
+    category: significant
+    changed: [initial]
+    to_fingerprint: "fp:96e295a7b5c43a49"
+    revalidation: {suite: compliance@baseline, result: passed, redteam: 13/13 defended, date: "2026-10-20"}
+    approvals:
+      - {name: D. Reyes, role: Utilization Management director, date: "2026-10-21"}
+      - {name: L. Brandt, role: Privacy Officer, date: "2026-10-21"}
+    status: approved
+  - id: CHG-0003
+    agent: complaint-triage
+    summary: Initial production release of complaint-triage (Lab 3) after full validation
+    category: significant
+    changed: [initial]
+    to_fingerprint: "fp:5930dd2d443dd920"
+    revalidation: {suite: compliance@baseline, result: passed, redteam: 13/13 defended, date: "2026-10-20"}
+    approvals:
+      - {name: R. Patel, role: Quality Assurance, date: "2026-10-21"}
+      - {name: A. Novak, role: Regulatory Affairs, date: "2026-10-21"}
+    status: approved
+  - id: CHG-0004
+    agent: aml-triage
+    summary: Initial production release of aml-triage (Lab 4) after full validation
+    category: significant
+    changed: [initial]
+    to_fingerprint: "fp:3e09cc130a9444e9"
+    revalidation: {suite: compliance@baseline, result: passed, redteam: 13/13 defended, date: "2026-10-20"}
+    approvals:
+      - {name: D. Okafor, role: BSA Officer, date: "2026-10-21"}
+      - {name: S. Patel, role: Chief Compliance Officer, date: "2026-10-21"}
+    status: approved
+  - id: CHG-0005
+    agent: ccb-assistant
+    summary: Initial production release of ccb-assistant (Lab 5) after full validation
+    category: significant
+    changed: [initial]
+    to_fingerprint: "fp:074d3812fed38c67"
+    revalidation: {suite: compliance@baseline, result: passed, redteam: 13/13 defended, date: "2026-10-20"}
+    approvals:
+      - {name: M. Bell, role: Facility Security Officer, date: "2026-10-21"}
+      - {name: E. Vance, role: Engineering, date: "2026-10-21"}
+    status: approved
+  - id: CHG-0006
+    agent: pa-reviewer
+    summary: "Prompt v2: cite the criterion number in every recommendation (predetermined wording change)"
+    category: predetermined
+    changed: [prompt_version]
+    to_fingerprint: "fp:4d8016cb0a3b21f1"
+    revalidation: {suite: compliance@4f2c9e1, result: passed, redteam: 13/13 defended, date: "2026-10-24"}
+    approvals:
+      - {name: D. Reyes, role: Utilization Management director, date: "2026-10-24"}
+    status: approved
+  - id: CHG-0007
+    agent: ledgerbot
+    summary: "Production deployment (M10): deployment path, WORM audit storage, transcript retention, workload identity and sandbox declared in deployment.yaml"
+    category: significant
+    changed: [controls, configs]
+    to_fingerprint: "fp:d35513de7d7ca89d"
+    revalidation: {suite: compliance@m10-prod, result: passed, redteam: 13/13 defended, date: "2026-10-28"}
+    approvals:
+      - {name: M. Hale, role: Controller, date: "2026-10-28"}
+      - {name: M. Chen, role: Information Security, date: "2026-10-28"}
+    status: approved
+  - id: CHG-0008
+    agent: pa-reviewer
+    summary: "Production deployment (M10): deployment path, WORM audit storage, transcript retention, workload identity and sandbox declared in deployment.yaml"
+    category: significant
+    changed: [controls, configs]
+    to_fingerprint: "fp:7534995f652a6640"
+    revalidation: {suite: compliance@m10-prod, result: passed, redteam: 13/13 defended, date: "2026-10-28"}
+    approvals:
+      - {name: D. Reyes, role: Utilization Management director, date: "2026-10-28"}
+      - {name: M. Chen, role: Information Security, date: "2026-10-28"}
+    status: approved
+  - id: CHG-0009
+    agent: complaint-triage
+    summary: "Production deployment (M10): deployment path, WORM audit storage, transcript retention, workload identity and sandbox declared in deployment.yaml"
+    category: significant
+    changed: [controls, configs]
+    to_fingerprint: "fp:8557a9fe7b6cec33"
+    revalidation: {suite: compliance@m10-prod, result: passed, redteam: 13/13 defended, date: "2026-10-28"}
+    approvals:
+      - {name: R. Patel, role: Quality Assurance, date: "2026-10-28"}
+      - {name: M. Chen, role: Information Security, date: "2026-10-28"}
+    status: approved
+  - id: CHG-0010
+    agent: aml-triage
+    summary: "Production deployment (M10): deployment path, WORM audit storage, transcript retention, workload identity and sandbox declared in deployment.yaml"
+    category: significant
+    changed: [controls, configs]
+    to_fingerprint: "fp:c869c1ed3b4762f2"
+    revalidation: {suite: compliance@m10-prod, result: passed, redteam: 13/13 defended, date: "2026-10-28"}
+    approvals:
+      - {name: D. Okafor, role: BSA Officer, date: "2026-10-28"}
+      - {name: M. Chen, role: Information Security, date: "2026-10-28"}
+    status: approved
+  - id: CHG-0011
+    agent: ccb-assistant
+    summary: "Production deployment (M10): deployment path, WORM audit storage, transcript retention, workload identity and sandbox declared in deployment.yaml"
+    category: significant
+    changed: [controls, configs]
+    to_fingerprint: "fp:05db37c7ca8279a9"
+    revalidation: {suite: compliance@m10-prod, result: passed, redteam: 13/13 defended, date: "2026-10-28"}
+    approvals:
+      - {name: M. Bell, role: Facility Security Officer, date: "2026-10-28"}
+      - {name: M. Chen, role: Information Security, date: "2026-10-28"}
+    status: approved

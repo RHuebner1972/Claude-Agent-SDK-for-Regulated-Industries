@@ -1,0 +1,38 @@
+[
+ {
+  "user": "j.rivera",
+  "name": "Jamie Rivera",
+  "role": "aml_analyst",
+  "note": "Uses the triage assistant; requester for all agent actions"
+ },
+ {
+  "user": "m.chen",
+  "name": "Morgan Chen",
+  "role": "aml_senior_analyst",
+  "note": "First-line approver"
+ },
+ {
+  "user": "d.okafor",
+  "name": "Dana Okafor",
+  "role": "bsa_officer",
+  "note": "BSA Officer; signs SAR decisions and account restrictions"
+ },
+ {
+  "user": "s.patel",
+  "name": "Sam Patel",
+  "role": "chief_compliance_officer",
+  "note": "Escalation target"
+ },
+ {
+  "user": "t.nguyen",
+  "name": "Tran Nguyen",
+  "role": "aml_senior_analyst",
+  "note": "Also relationship manager for CUS-2101 and CUS-2108: conflict of interest"
+ },
+ {
+  "user": "k.ward",
+  "name": "Kelly Ward",
+  "role": "relationship_manager",
+  "note": "Relationship manager; not an AML approver"
+ }
+]

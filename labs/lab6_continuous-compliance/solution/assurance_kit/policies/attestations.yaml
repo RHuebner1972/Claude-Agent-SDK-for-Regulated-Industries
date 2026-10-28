@@ -1,0 +1,18 @@
+# Evidence a test can't produce: documents, drills and reviews, each checked by someone other than its author.
+# status: on_file (evidence exists and was reviewed) | planned (control not built yet: scores 0).
+# Rubric rule: award a point only when the evidence exists AND someone other than the author has checked it.
+name: fleet-attestations
+version: 1.0.0
+attestations:
+  - {item: "1.4", status: planned, artifact: "WORM storage and retention config (Module 10)", reviewer: "", date: ""}
+  - {item: "2.1", status: on_file, artifact: "src/sentinel/privacy/classes.py; M04 practice activity data inventory", reviewer: "L. Brandt, Privacy Officer", date: "2026-10-21"}
+  - {item: "2.4", status: on_file, artifact: "labs/lab2_phi-masking/tests (re-identification denied without purpose; every re-ID logged)", reviewer: "L. Brandt, Privacy Officer", date: "2026-10-21"}
+  - {item: "2.5", status: on_file, artifact: "labs/lab2_phi-masking/solution/evaluate.py report: recall vs. threshold on the labeled synthetic set", reviewer: "L. Brandt, Privacy Officer", date: "2026-10-21"}
+  - {item: "2.6", status: planned, artifact: "Retention and deletion for transcripts, logs and caches (Module 10)", reviewer: "", date: ""}
+  - {item: "3.3", status: planned, artifact: "Scoped, short-lived agent credentials (Module 10)", reviewer: "", date: ""}
+  - {item: "3.4", status: on_file, artifact: "each lab's agent.py: strict_mcp_config=True, setting_sources=[]", reviewer: "Platform security review", date: "2026-10-22"}
+  - {item: "3.5", status: planned, artifact: "Container sandbox and egress allowlist (Module 10)", reviewer: "", date: ""}
+  - {item: "4.4", status: on_file, artifact: "Pydantic input models for every tool (extra='forbid'); M02 and M05 validation tests", reviewer: "Platform security review", date: "2026-10-22"}
+  - {item: "5.2", status: on_file, artifact: "labs/lab4_human-approval/solution/approve.py: action, evidence and rationale in one view", reviewer: "S. Patel, Chief Compliance Officer", date: "2026-10-22"}
+  - {item: "5.6", status: on_file, artifact: "Lab 4 kill-switch drill record (run_offline.py drill, audit events)", reviewer: "S. Patel, Chief Compliance Officer", date: "2026-10-22"}
+  - {item: "7.5", status: on_file, artifact: "Agent incident-response runbook (M08 cheat sheet) and Lab 6 tabletop record", reviewer: "Incident response lead", date: "2026-10-27"}

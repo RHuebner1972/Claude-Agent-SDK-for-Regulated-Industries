@@ -1,0 +1,12 @@
+{
+ "FALCON": {
+  "customer": "U.S. Department of Defense (synthetic program)",
+  "data": "CUI//SP-CTI and ITAR technical data",
+  "enclave": "CUI enclave (US region, FedRAMP Moderate-equivalent)"
+ },
+ "HARBORLIGHT": {
+  "customer": "Commercial marine (synthetic)",
+  "data": "Company internal, EAR99",
+  "enclave": "General platform"
+ }
+}

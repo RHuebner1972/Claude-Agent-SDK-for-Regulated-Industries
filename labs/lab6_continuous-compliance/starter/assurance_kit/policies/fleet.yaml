@@ -1,0 +1,67 @@
+# The course fleet: the five agents from Labs 1-5, on one shared assurance pipeline (synthetic, for course use).
+# This manifest is the single place a deployed agent's configuration is declared. The compliance suite runs every
+# agent from it, and change control compares it with the approved change records (changes.yaml). Paths are
+# relative to src/sentinel/. Change anything here and the suite re-runs, and a change record must exist (rubric 7.1, 7.4).
+name: sentinel-fleet
+version: 1.0.0
+agents:
+  - name: ledgerbot
+    lab: Lab 1
+    organization: Fictional manufacturer's finance team
+    owner: Controller
+    risk_tier: 3
+    model: claude-sonnet-5-5
+    prompt_version: sha256:5d41c0a19e2b
+    permission_mode: dontAsk
+    tools: [list_pending_entries, get_journal_entry, get_vendor_summary, record_recommendation]
+    controls: {audit_hmac: true}
+    configs: []
+
+  - name: pa-reviewer
+    lab: Lab 2
+    organization: Northshore Health Plan
+    owner: Utilization Management director
+    risk_tier: 4
+    model: claude-sonnet-5-5
+    prompt_version: sha256:a91f4c06e3b7
+    permission_mode: dontAsk
+    tools: [get_criteria, get_prior_auth_case, record_pa_recommendation]
+    controls: {audit_hmac: true, minimized_tools: true, log_masking: token}
+    configs: []
+
+  - name: complaint-triage
+    lab: Lab 3
+    organization: Harborline Medical
+    owner: Quality Assurance
+    risk_tier: 4
+    model: claude-sonnet-5-5
+    prompt_version: sha256:9b04e7c2a1f8
+    permission_mode: dontAsk
+    tools: [list_complaints, get_complaint, search_similar, add_investigation_note, set_mdr_assessment,
+            close_complaint, send_customer_email]
+    controls: {audit_hmac: true, policy_enforced: true}
+    configs: [policy/policies/complaints.yaml]
+
+  - name: aml-triage
+    lab: Lab 4
+    organization: Bayside Community Bank
+    owner: BSA Officer
+    risk_tier: 4
+    model: claude-sonnet-5-5
+    prompt_version: sha256:41d8cd98f00b
+    permission_mode: dontAsk
+    tools: [list_alerts, get_alert, get_customer_history, add_case_note, close_alert, recommend_sar, restrict_account]
+    controls: {audit_hmac: true, approval_gate: deny}
+    configs: [approvals/policies/oversight.yaml]
+
+  - name: ccb-assistant
+    lab: Lab 5
+    organization: Northgate Precision Components
+    owner: Facility Security Officer
+    risk_tier: 4
+    model: claude-sonnet-5-5
+    prompt_version: sha256:c3a9f2e17d40
+    permission_mode: dontAsk
+    tools: [Agent, list_ecrs, get_ecr_technical, schedule_ccb_review, draft_agenda_item]
+    controls: {audit_hmac: true, handoff_contracts: true, routed_logs: true}
+    configs: [boundaries/policies/agent_cards.yaml]

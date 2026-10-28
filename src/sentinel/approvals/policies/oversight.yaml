@@ -1,0 +1,42 @@
+# Oversight policy for the Bayside Community Bank AML triage assistant (synthetic, for course use).
+# Owned by the BSA Officer. Changes go through review and the tests in tests/test_m06_offline.py.
+#   none         no human step (read-only tools)
+#   on_the_loop  runs now; logged for sampled review after the fact
+#   in_the_loop  held until enough people, in the right roles, sign. Timeouts escalate, then expire.
+name: aml-oversight
+version: 1.0.0
+rules:
+  - {tool: list_alerts, oversight: none}
+  - {tool: get_alert, oversight: none}
+  - {tool: get_customer_history, oversight: none}
+  - tool: add_case_note
+    oversight: on_the_loop
+    citation: AML-SOP-012 rule 1
+
+  - tool: close_alert
+    oversight: in_the_loop
+    approvals_required: 1
+    approver_roles: [aml_senior_analyst, bsa_officer]
+    timeout_minutes: 240
+    escalate_to: chief_compliance_officer
+    meaning: I reviewed the alert evidence and approve closing this alert with the stated disposition.
+    citation: AML-SOP-012 rule 2
+
+  - tool: recommend_sar
+    oversight: in_the_loop
+    approvals_required: 2
+    approver_roles: [aml_senior_analyst, bsa_officer]
+    must_include_role: bsa_officer
+    timeout_minutes: 1440
+    escalate_to: chief_compliance_officer
+    meaning: I reviewed the investigation and approve escalating this alert for SAR filing.
+    citation: AML-SOP-012 rule 3; 31 CFR 1020.320
+
+  - tool: restrict_account
+    oversight: in_the_loop
+    approvals_required: 1
+    approver_roles: [bsa_officer]
+    timeout_minutes: 60
+    escalate_to: chief_compliance_officer
+    meaning: I approve this restriction on the customer's account.
+    citation: AML-SOP-012 rule 4

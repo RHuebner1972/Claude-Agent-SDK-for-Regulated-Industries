@@ -1,0 +1,458 @@
+[
+ {
+  "alert_id": "ALR-5001",
+  "generated": "2026-10-05",
+  "scenario": "Possible structuring: repeated cash deposits just under $10,000",
+  "rule_id": "TM-STR-01",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2101",
+   "name": "Dale Morrow",
+   "type": "individual",
+   "occupation": "Landscaping (self-employed)",
+   "risk_rating": "medium",
+   "account_id": "ACC-77310",
+   "opened": "2019-04-02",
+   "expected_monthly_cash": 4000
+  },
+  "transactions": [
+   {
+    "date": "2026-09-24",
+    "type": "cash_deposit",
+    "amount": 9600,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Main St branch"
+   },
+   {
+    "date": "2026-09-25",
+    "type": "cash_deposit",
+    "amount": 9800,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Harbor branch"
+   },
+   {
+    "date": "2026-09-26",
+    "type": "cash_deposit",
+    "amount": 9500,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Main St branch"
+   },
+   {
+    "date": "2026-09-29",
+    "type": "cash_deposit",
+    "amount": 9900,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Quincy branch"
+   },
+   {
+    "date": "2026-09-30",
+    "type": "cash_deposit",
+    "amount": 9700,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Harbor branch"
+   },
+   {
+    "date": "2026-10-01",
+    "type": "cash_deposit",
+    "amount": 9300,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Main St branch"
+   }
+  ],
+  "prior_alerts_12m": 1,
+  "prior_sars": 0,
+  "relationship_manager": "t.nguyen",
+  "analyst_notes": ""
+ },
+ {
+  "alert_id": "ALR-5002",
+  "generated": "2026-10-06",
+  "scenario": "Large ACH outflow above peer group",
+  "rule_id": "TM-ACH-03",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2102",
+   "name": "Seaside Family Dental LLC",
+   "type": "business",
+   "occupation": "Dental practice, 14 employees",
+   "risk_rating": "low",
+   "account_id": "ACC-77322",
+   "opened": "2014-08-19",
+   "expected_monthly_cash": 0
+  },
+  "transactions": [
+   {
+    "date": "2026-09-30",
+    "type": "ach_debit",
+    "amount": 61250,
+    "direction": "out",
+    "counterparty": "Atlantic Payroll Services",
+    "channel": "ACH"
+   },
+   {
+    "date": "2026-09-15",
+    "type": "ach_debit",
+    "amount": 60980,
+    "direction": "out",
+    "counterparty": "Atlantic Payroll Services",
+    "channel": "ACH"
+   },
+   {
+    "date": "2026-08-31",
+    "type": "ach_debit",
+    "amount": 61040,
+    "direction": "out",
+    "counterparty": "Atlantic Payroll Services",
+    "channel": "ACH"
+   }
+  ],
+  "prior_alerts_12m": 0,
+  "prior_sars": 0,
+  "relationship_manager": "k.ward",
+  "analyst_notes": "Same payroll processor every two weeks since 2015."
+ },
+ {
+  "alert_id": "ALR-5003",
+  "generated": "2026-10-07",
+  "scenario": "Rapid movement of funds: wires in, crypto exchange out within 24 hours",
+  "rule_id": "TM-RMF-02",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2103",
+   "name": "Brian Kessler",
+   "type": "individual",
+   "occupation": "Self-described consultant",
+   "risk_rating": "high",
+   "account_id": "ACC-77345",
+   "opened": "2026-08-21",
+   "expected_monthly_cash": 0
+  },
+  "transactions": [
+   {
+    "date": "2026-10-02",
+    "type": "wire_in",
+    "amount": 18000,
+    "direction": "in",
+    "counterparty": "L. Ortega",
+    "channel": "Wire"
+   },
+   {
+    "date": "2026-10-02",
+    "type": "wire_in",
+    "amount": 15500,
+    "direction": "in",
+    "counterparty": "Pinecrest Holdings",
+    "channel": "Wire"
+   },
+   {
+    "date": "2026-10-03",
+    "type": "wire_in",
+    "amount": 14500,
+    "direction": "in",
+    "counterparty": "M. Abrams",
+    "channel": "Wire"
+   },
+   {
+    "date": "2026-10-03",
+    "type": "wire_out",
+    "amount": 47600,
+    "direction": "out",
+    "counterparty": "CoinHarbor Exchange",
+    "channel": "Wire"
+   }
+  ],
+  "prior_alerts_12m": 0,
+  "prior_sars": 0,
+  "relationship_manager": "k.ward",
+  "analyst_notes": "Account 45 days old. Three unrelated senders. No stated business purpose."
+ },
+ {
+  "alert_id": "ALR-5004",
+  "generated": "2026-10-08",
+  "scenario": "Wire to a supplier in a jurisdiction on the bank's high-risk list",
+  "rule_id": "TM-JUR-01",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2104",
+   "name": "Northshore Textile Imports Inc.",
+   "type": "business",
+   "occupation": "Fabric importer",
+   "risk_rating": "medium",
+   "account_id": "ACC-77351",
+   "opened": "2011-02-14",
+   "expected_monthly_cash": 0
+  },
+  "transactions": [
+   {
+    "date": "2026-10-06",
+    "type": "wire_out",
+    "amount": 32400,
+    "direction": "out",
+    "counterparty": "Supplier on file since 2017 (invoice INV-88213)",
+    "channel": "Wire"
+   }
+  ],
+  "prior_alerts_12m": 0,
+  "prior_sars": 0,
+  "relationship_manager": "k.ward",
+  "analyst_notes": "Supplier, invoice and shipping documents on file; EDD refreshed June 2026."
+ },
+ {
+  "alert_id": "ALR-5005",
+  "generated": "2026-10-09",
+  "scenario": "Dormant account reactivated with a large wire to a new payee",
+  "rule_id": "TM-DOR-01",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2105",
+   "name": "Evelyn Hart",
+   "type": "individual",
+   "occupation": "Retired, age 81",
+   "risk_rating": "low",
+   "account_id": "ACC-77368",
+   "opened": "1998-05-30",
+   "expected_monthly_cash": 0
+  },
+  "transactions": [
+   {
+    "date": "2026-10-04",
+    "type": "online_enrollment",
+    "amount": 0,
+    "direction": "n/a",
+    "counterparty": "New device, new email address",
+    "channel": "Online"
+   },
+   {
+    "date": "2026-10-07",
+    "type": "wire_out",
+    "amount": 25000,
+    "direction": "out",
+    "counterparty": "GlobalTech Support Services",
+    "channel": "Wire"
+   }
+  ],
+  "prior_alerts_12m": 0,
+  "prior_sars": 0,
+  "relationship_manager": "k.ward",
+  "analyst_notes": "No activity for 3 years before enrollment. Possible elder financial exploitation."
+ },
+ {
+  "alert_id": "ALR-5006",
+  "generated": "2026-10-10",
+  "scenario": "Cash deposits above peer group",
+  "rule_id": "TM-CSH-02",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2106",
+   "name": "Bright Wash Laundromat LLC",
+   "type": "business",
+   "occupation": "Laundromat, 2 locations",
+   "risk_rating": "medium",
+   "account_id": "ACC-77374",
+   "opened": "2016-11-03",
+   "expected_monthly_cash": 38000
+  },
+  "transactions": [
+   {
+    "date": "2026-09-30",
+    "type": "cash_deposit",
+    "amount": 8900,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Harbor branch"
+   },
+   {
+    "date": "2026-10-07",
+    "type": "cash_deposit",
+    "amount": 9400,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Harbor branch"
+   }
+  ],
+  "prior_alerts_12m": 0,
+  "prior_sars": 0,
+  "relationship_manager": "k.ward",
+  "analyst_notes": "Weekly deposits match 3-year history and seasonal pattern; CTRs filed when over $10,000."
+ },
+ {
+  "alert_id": "ALR-5007",
+  "generated": "2026-10-11",
+  "scenario": "Round-dollar transfers between related accounts",
+  "rule_id": "TM-RND-01",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2107",
+   "name": "Coastal Realty Partners LLC",
+   "type": "business",
+   "occupation": "Property management",
+   "risk_rating": "medium",
+   "account_id": "ACC-77381",
+   "opened": "2020-01-09",
+   "expected_monthly_cash": 0
+  },
+  "transactions": [
+   {
+    "date": "2026-10-01",
+    "type": "book_transfer",
+    "amount": 20000,
+    "direction": "out",
+    "counterparty": "Coastal Realty Escrow (related)",
+    "channel": "Internal"
+   },
+   {
+    "date": "2026-10-08",
+    "type": "book_transfer",
+    "amount": 20000,
+    "direction": "out",
+    "counterparty": "Coastal Realty Escrow (related)",
+    "channel": "Internal"
+   }
+  ],
+  "prior_alerts_12m": 0,
+  "prior_sars": 0,
+  "relationship_manager": "k.ward",
+  "analyst_notes": "Purpose unclear; request explanation from the customer through the relationship manager."
+ },
+ {
+  "alert_id": "ALR-5008",
+  "generated": "2026-10-12",
+  "scenario": "Cash deposits above expected activity",
+  "rule_id": "TM-CSH-01",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2108",
+   "name": "Marina Grill & Bar LLC",
+   "type": "business",
+   "occupation": "Restaurant",
+   "risk_rating": "medium",
+   "account_id": "ACC-77390",
+   "opened": "2018-06-21",
+   "expected_monthly_cash": 30000
+  },
+  "transactions": [
+   {
+    "date": "2026-10-05",
+    "type": "cash_deposit",
+    "amount": 14200,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Main St branch"
+   },
+   {
+    "date": "2026-10-09",
+    "type": "cash_deposit",
+    "amount": 13800,
+    "direction": "in",
+    "counterparty": "self",
+    "channel": "Main St branch"
+   }
+  ],
+  "prior_alerts_12m": 0,
+  "prior_sars": 0,
+  "relationship_manager": "t.nguyen",
+  "analyst_notes": "Summer festival weekend; CTRs filed for both deposits. Consistent with prior Octobers."
+ },
+ {
+  "alert_id": "ALR-5009",
+  "generated": "2026-10-13",
+  "scenario": "Many small peer-to-peer payments with unusual memos",
+  "rule_id": "TM-P2P-04",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2109",
+   "name": "Priya Natarajan",
+   "type": "individual",
+   "occupation": "Graduate student",
+   "risk_rating": "low",
+   "account_id": "ACC-77402",
+   "opened": "2022-09-01",
+   "expected_monthly_cash": 0
+  },
+  "transactions": [
+   {
+    "date": "2026-10-10",
+    "type": "p2p_in",
+    "amount": 45,
+    "direction": "in",
+    "counterparty": "Roommate (memo: pizza)",
+    "channel": "P2P"
+   },
+   {
+    "date": "2026-10-11",
+    "type": "p2p_in",
+    "amount": 60,
+    "direction": "in",
+    "counterparty": "Roommate (memo: utilities)",
+    "channel": "P2P"
+   },
+   {
+    "date": "2026-10-12",
+    "type": "p2p_in",
+    "amount": 38,
+    "direction": "in",
+    "counterparty": "Friend (memo: concert tix)",
+    "channel": "P2P"
+   }
+  ],
+  "prior_alerts_12m": 0,
+  "prior_sars": 0,
+  "relationship_manager": "k.ward",
+  "analyst_notes": "Memo keywords tripped the rule; amounts tiny."
+ },
+ {
+  "alert_id": "ALR-5010",
+  "generated": "2026-10-14",
+  "scenario": "Foreign ATM withdrawals",
+  "rule_id": "TM-ATM-02",
+  "status": "open",
+  "assigned_to": "j.rivera",
+  "customer": {
+   "customer_id": "CUS-2110",
+   "name": "Gregory Lund",
+   "type": "individual",
+   "occupation": "Architect",
+   "risk_rating": "low",
+   "account_id": "ACC-77415",
+   "opened": "2009-03-12",
+   "expected_monthly_cash": 0
+  },
+  "transactions": [
+   {
+    "date": "2026-10-02",
+    "type": "atm_withdrawal",
+    "amount": 400,
+    "direction": "out",
+    "counterparty": "ATM, Lisbon",
+    "channel": "ATM"
+   },
+   {
+    "date": "2026-10-05",
+    "type": "atm_withdrawal",
+    "amount": 300,
+    "direction": "out",
+    "counterparty": "ATM, Porto",
+    "channel": "ATM"
+   }
+  ],
+  "prior_alerts_12m": 0,
+  "prior_sars": 0,
+  "relationship_manager": "k.ward",
+  "analyst_notes": "Travel notice on file for Portugal, Sep 30 - Oct 12."
+ }
+]

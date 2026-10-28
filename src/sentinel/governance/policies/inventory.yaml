@@ -1,0 +1,106 @@
+# AI system inventory for the course fleet (M11-L01). Synthetic organizations and people.
+#
+# One entry per AI system in production. The inventory holds what only people can say: who owns the system, what
+# decision it touches, who is affected, how a human stays in charge, and which assessments were done. Everything a
+# machine can read is joined in at load time: risk tier, model, tools and fingerprint from the fleet manifest, the
+# deployment path from deploy/policies/deployment.yaml, applicable regimes from the regulatory map, the latest
+# approved change record, the validation record and the open risks. Never copy those here: a copy goes stale.
+#
+#   uv run python -m sentinel.governance inventory          # lint and list
+#   uv run python -m sentinel.governance card --agent aml-triage
+#
+# decision_role: informs (context only) | recommends (a person decides) | decides (acts unless a person stops it)
+#                | acts (changes something in the world without a per-action human decision)
+# Assessment kinds: AIIA = AI system impact assessment (ISO/IEC 42001 6.1.4, guidance in ISO/IEC 42005:2025);
+#   FMEA = failure modes and effects (risk_register.yaml); HIPAA-SRA = HIPAA security risk analysis updated for
+#   the agent (45 CFR 164.308(a)(1)(ii)(A)); DPIA = GDPR Art. 35; FRIA = EU AI Act Art. 27. Not legal advice.
+name: ai-system-inventory
+version: 1.0.0
+as_of: "2026-10-28"
+review_interval_days: {4: 365, 3: 730, 2: 730, 1: 1095}   # risk tier -> how often every assessment is redone
+systems:
+  ledgerbot:
+    business_owner: "M. Hale, Controller"
+    technical_owner: "D. Alvarez, Platform Engineering"
+    purpose: "Reviews pending journal entries and vendor history, and recommends approve, hold or escalate to an accountant."
+    decision_role: recommends
+    affected: "The company's financial statements; vendors whose payments are held"
+    human_oversight: "An accountant decides every entry; the agent can only record a recommendation."
+    data: [financial records, vendor master data]
+    lifecycle: production
+    in_production_since: "2026-10-21"
+    classifications:
+      - {scheme: "SOX ICFR", result: "In scope: supports a review control over journal entries", by: "M. Hale, Controller"}
+      - {scheme: "EU AI Act", result: "Not in scope: not placed on the market or used in the EU", by: "S. Patel, Chief Compliance Officer"}
+    assessments:
+      - {kind: AIIA, id: AIIA-LB-001, date: "2026-10-14", reviewer: "J. Park, Finance Controls", outcome: "Low impact on people; financial-statement impact managed by the review control"}
+      - {kind: FMEA, id: FMEA-LB-001, date: "2026-10-16", reviewer: "J. Park, Finance Controls", outcome: "1 failure mode, Low priority"}
+
+  pa-reviewer:
+    business_owner: "D. Reyes, Utilization Management director"
+    technical_owner: "D. Alvarez, Platform Engineering"
+    purpose: "Summarizes prior authorization requests against the plan's published criteria and drafts a recommendation for a clinical reviewer."
+    decision_role: recommends
+    affected: "Health plan members waiting for a prior authorization decision"
+    human_oversight: "A clinician decides every case; the agent never issues a denial. Masked PHI only (Lab 2)."
+    data: [PHI (masked), clinical criteria]
+    lifecycle: production
+    in_production_since: "2026-10-21"
+    classifications:
+      - {scheme: "HIPAA", result: "Covered entity use of PHI; vendor path under a BAA", by: "L. Brandt, Privacy Officer"}
+      - {scheme: "Internal AI policy", result: "High impact: informs a decision on access to care", by: "L. Brandt, Privacy Officer"}
+    assessments:
+      - {kind: AIIA, id: AIIA-PA-001, date: "2026-10-10", reviewer: "L. Brandt, Privacy Officer", outcome: "High impact; clinician decides; recommendation text must cite the criterion"}
+      - {kind: HIPAA-SRA, id: SRA-2026-07, date: "2026-10-12", reviewer: "M. Chen, Information Security", outcome: "Risk analysis updated for the agent; log masking and BAA path required"}
+      - {kind: FMEA, id: FMEA-PA-001, date: "2026-10-16", reviewer: "K. Ito, Clinical AI Governance", outcome: "2 failure modes, 1 Medium"}
+
+  complaint-triage:
+    business_owner: "R. Patel, Quality Assurance"
+    technical_owner: "D. Alvarez, Platform Engineering"
+    purpose: "Triages device complaints: finds similar complaints, drafts investigation notes and proposes an MDR reportability assessment for QA."
+    decision_role: recommends
+    affected: "Patients using the device; customers who filed complaints"
+    human_oversight: "QA signs every MDR assessment and closure under Part 11; the policy engine blocks closing without a signed assessment."
+    data: [complaint records, device history]
+    lifecycle: production
+    in_production_since: "2026-10-21"
+    classifications:
+      - {scheme: "GxP / QMSR", result: "Quality system software: validated under CSA, high process risk (MDR reportability)", by: "R. Patel, Quality Assurance"}
+      - {scheme: "FDA AI-enabled device software functions", result: "Not a device function: a QMS tool", by: "A. Novak, Regulatory Affairs"}
+    assessments:
+      - {kind: AIIA, id: AIIA-CT-001, date: "2026-10-09", reviewer: "A. Novak, Regulatory Affairs", outcome: "High process risk; human signs every reportability decision"}
+      - {kind: FMEA, id: FMEA-CT-001, date: "2026-10-15", reviewer: "A. Novak, Regulatory Affairs", outcome: "4 failure modes, 2 Medium"}
+
+  aml-triage:
+    business_owner: "D. Okafor, BSA Officer"
+    technical_owner: "D. Alvarez, Platform Engineering"
+    purpose: "Triages transaction-monitoring alerts: gathers customer history, drafts case notes and recommends close or SAR for an analyst."
+    decision_role: recommends
+    affected: "Bank customers whose activity raised an alert"
+    human_oversight: "An analyst approves every close; SAR recommendations and account restrictions need two approvals and a kill switch stops the agent (Lab 4)."
+    data: [customer PII, transaction history, SAR-confidential information]
+    lifecycle: production
+    in_production_since: "2026-10-21"
+    classifications:
+      - {scheme: "Model inventory (SR 26-2)", result: "Listed in the model inventory. SR 26-2 excludes generative and agentic AI, so the bank's AI policy governs it, applying MRM disciplines", by: "T. Nguyen, Model Risk Management"}
+      - {scheme: "NYDFS Part 500", result: "Information system holding nonpublic information: in the cybersecurity program and the CISO's annual report", by: "M. Chen, Information Security"}
+    assessments:
+      - {kind: AIIA, id: AIIA-AML-001, date: "2026-10-08", reviewer: "T. Nguyen, Model Risk Management", outcome: "High impact on customers; analyst decides; tipping-off risk controlled"}
+      - {kind: FMEA, id: FMEA-AML-001, date: "2026-10-15", reviewer: "T. Nguyen, Model Risk Management", outcome: "4 failure modes, 1 High (notification clock)"}
+
+  ccb-assistant:
+    business_owner: "M. Bell, Facility Security Officer"
+    technical_owner: "D. Alvarez, Platform Engineering"
+    purpose: "Prepares configuration control board agendas from engineering change requests, delegating CUI work to cleared subagents."
+    decision_role: informs
+    affected: "Program engineers; the government customer whose CUI is handled"
+    human_oversight: "The board decides every change; subagents only see the markings their cards allow (Lab 5)."
+    data: [CUI, export-controlled technical data]
+    lifecycle: production
+    in_production_since: "2026-10-21"
+    classifications:
+      - {scheme: "CMMC / DFARS 7012", result: "Processes CUI: inside the CMMC assessment scope", by: "M. Bell, Facility Security Officer"}
+      - {scheme: "ITAR", result: "Technical data stays with US-person, authorized subagents in GovCloud", by: "M. Bell, Facility Security Officer"}
+    assessments:
+      - {kind: AIIA, id: AIIA-CCB-001, date: "2026-10-11", reviewer: "H. Kowalski, Security Compliance", outcome: "Low impact on people; high consequence of a boundary failure"}
+      - {kind: FMEA, id: FMEA-CCB-001, date: "2026-10-16", reviewer: "H. Kowalski, Security Compliance", outcome: "1 failure mode, Medium"}

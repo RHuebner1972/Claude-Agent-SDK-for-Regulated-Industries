@@ -1,0 +1,74 @@
+# Who does what for a regulated agent (M11-L06): a RACI that engineering and compliance both sign.
+#
+# R = does the work, A = answers for it (exactly one per activity), C = consulted before, I = informed after.
+# "AR" means the accountable role also does the work. Each activity names the artifact it produces, so "who owns
+# the risk register?" and "where is the risk register?" have one answer.
+#
+# Lines of defense: 1 = the business and the team that builds and runs the agent; 2 = compliance, privacy,
+# security and independent validation, who set rules and challenge; 3 = internal audit, who gives independent
+# assurance and so never does or owns the work it audits.
+#
+#   uv run python -m sentinel.governance raci
+name: agent-raci
+version: 1.0.0
+roles:
+  owner:  {title: "Business owner", line: 1}
+  eng:    {title: "AI platform engineering", line: 1}
+  comp:   {title: "Compliance", line: 2}
+  priv:   {title: "Privacy officer", line: 2}
+  sec:    {title: "Information security", line: 2}
+  val:    {title: "Independent validation (model risk or QA)", line: 2}
+  audit:  {title: "Internal audit", line: 3}
+  board:  {title: "Board or risk committee", line: 0}
+activities:
+  - id: inventory
+    name: "Register the agent and keep its inventory entry current"
+    artifact: "governance/policies/inventory.yaml"
+    cells: {owner: A, eng: R, comp: C, val: I, audit: I}
+  - id: scope
+    name: "Decide which regimes apply (regulatory map)"
+    artifact: "evidence/policies/regulatory_map.yaml"
+    cells: {comp: AR, owner: C, priv: C, eng: I}
+  - id: impact
+    name: "AI impact assessment (and DPIA or HIPAA risk analysis where required)"
+    artifact: "inventory.yaml assessments"
+    cells: {owner: A, priv: R, comp: C, eng: C, audit: I}
+  - id: fmea
+    name: "Failure modes and effects (risk register)"
+    artifact: "governance/policies/risk_register.yaml"
+    cells: {owner: A, eng: R, comp: C, val: C, sec: C}
+  - id: build
+    name: "Build and test the controls (compliance suite, red team)"
+    artifact: "compliance/ and the CI run"
+    cells: {owner: A, eng: R, sec: C, comp: C}
+  - id: validate
+    name: "Independent validation"
+    artifact: "governance/policies/validations.yaml"
+    cells: {val: AR, eng: C, owner: I, comp: I}
+    independent_of: [build]
+  - id: review
+    name: "Rubric review: confirm or challenge each point"
+    artifact: "evidence/policies/reviews/"
+    cells: {comp: A, val: R, priv: R, sec: R, eng: C, audit: I}
+    independent_of: [build]
+  - id: change
+    name: "Approve a production change"
+    artifact: "monitoring/policies/changes.yaml"
+    cells: {owner: A, comp: R, sec: R, eng: C}
+  - id: incident
+    name: "Incident response and regulator notification"
+    artifact: "Incident runbook and tabletop record"
+    cells: {comp: A, sec: R, priv: R, eng: R, owner: C, board: I}
+  - id: accept
+    name: "Accept a High risk without an action"
+    artifact: "risk_register.yaml acceptance"
+    cells: {board: A, owner: R, comp: C, val: C, audit: I}
+  - id: report
+    name: "Report to the board"
+    artifact: "Board brief (python -m sentinel.governance brief)"
+    cells: {comp: AR, owner: C, val: C, eng: C, board: I}
+  - id: assure
+    name: "Independent assurance over the whole program"
+    artifact: "Internal audit report"
+    cells: {audit: AR, comp: C, board: I}
+    assurance: true

@@ -1,0 +1,52 @@
+[
+  {
+    "account": "1000",
+    "name": "Cash - Operating",
+    "type": "asset"
+  },
+  {
+    "account": "1200",
+    "name": "Accounts Receivable",
+    "type": "asset"
+  },
+  {
+    "account": "1500",
+    "name": "Prepaid Expenses",
+    "type": "asset"
+  },
+  {
+    "account": "2000",
+    "name": "Accounts Payable",
+    "type": "liability"
+  },
+  {
+    "account": "2100",
+    "name": "Accrued Liabilities",
+    "type": "liability"
+  },
+  {
+    "account": "4000",
+    "name": "Product Revenue",
+    "type": "revenue"
+  },
+  {
+    "account": "4100",
+    "name": "Service Revenue",
+    "type": "revenue"
+  },
+  {
+    "account": "6100",
+    "name": "Professional Services Expense",
+    "type": "expense"
+  },
+  {
+    "account": "6200",
+    "name": "Software Subscriptions",
+    "type": "expense"
+  },
+  {
+    "account": "6300",
+    "name": "Travel and Entertainment",
+    "type": "expense"
+  }
+]

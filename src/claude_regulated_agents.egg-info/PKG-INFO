@@ -1,0 +1,20 @@
+Metadata-Version: 2.4
+Name: claude-regulated-agents
+Version: 0.1.0
+Summary: Course repo: build compliant AI agents with the Claude Agent SDK
+Requires-Python: >=3.10
+Requires-Dist: claude-agent-sdk
+Requires-Dist: pydantic>=2
+Requires-Dist: pyyaml
+Requires-Dist: python-dotenv
+Requires-Dist: presidio-analyzer
+Requires-Dist: presidio-anonymizer
+Requires-Dist: cryptography
+Requires-Dist: en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+Requires-Dist: opentelemetry-sdk
+Requires-Dist: faker
+Requires-Dist: rich
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-asyncio; extra == "dev"
+Requires-Dist: ruff; extra == "dev"

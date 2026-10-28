@@ -1,0 +1,133 @@
+# Where Claude can run for a regulated agent, and what each path gives you (M10-L01, L02, L07).
+#
+# These are FACTS ABOUT VENDORS AS OF as_of. They change often: model availability, regions, authorizations and
+# which agreements cover what. Re-check every row against the provider's current documentation and your contract
+# before you rely on it (00_Course-Plan/Regulatory_Watchlist.md). Not legal advice.
+name: deployment-paths
+version: 1.0.0
+as_of: "2026-10-28"
+paths:
+  claude-api:
+    title: "Claude API (Anthropic, first party)"
+    processor: Anthropic
+    phi: "Messages API: yes, in a HIPAA-ready org with a BAA, eligible features only (not code execution, batch, Files API, web fetch, MCP connector, Managed Agents). Agent SDK: it runs the Claude Code CLI, which Anthropic documents as not covered by API HIPAA readiness; without the HIPAA configuration Claude Code needs ZDR for BAA coverage. Confirm Agent SDK coverage in writing."
+    hipaa: ask
+    zdr: "By arrangement, per organization; eligible features only"
+    us_residency: "inference_geo: us (1.1x price); workspace geo US"
+    eu_residency: false
+    fedramp: none
+    il: 0
+    itar: false
+    private_networking: "Egress allowlist to api.anthropic.com; no private endpoint"
+    sdk_env: {ANTHROPIC_API_KEY: "from a secret manager, or ANTHROPIC_BASE_URL to a credential-injecting proxy"}
+    endpoint: api.anthropic.com
+    source: https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
+  claude-platform-aws:
+    title: "Claude Platform on AWS (Anthropic-operated, AWS billing and IAM)"
+    processor: Anthropic
+    phi: "No: HIPAA readiness isn't available on this path"
+    hipaa: false
+    zdr: "On request, same policy as the first-party API"
+    us_residency: "inference_geo: us"
+    eu_residency: false
+    fedramp: none
+    il: 0
+    itar: false
+    private_networking: "Data is processed outside the AWS security boundary"
+    sdk_env: {CLAUDE_CODE_USE_ANTHROPIC_AWS: "1", ANTHROPIC_AWS_WORKSPACE_ID: "<workspace>"}
+    endpoint: "(see provider docs)"
+    source: https://aws.amazon.com/about-aws/whats-new/2026/05/claude-platform-aws/
+  claude-google-anthropic-managed:
+    title: "Claude Models on Google Cloud (Anthropic managed)"
+    processor: Anthropic
+    phi: "Not documented: ask Anthropic"
+    hipaa: ask
+    zdr: "Same policy as the first-party API; ZDR on request"
+    us_residency: "inference_geo: us"
+    eu_residency: false
+    fedramp: none
+    il: 0
+    itar: false
+    private_networking: "Not documented"
+    sdk_env: {}
+    endpoint: "(see provider docs)"
+    source: https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
+  bedrock:
+    title: "Amazon Bedrock (commercial regions)"
+    processor: AWS
+    phi: "Yes, under the AWS BAA (Bedrock is HIPAA-eligible; check the model is on the eligible list)"
+    hipaa: true
+    zdr: "AWS processes; model providers have no access to prompts or completions; invocation logging is off unless you enable it"
+    us_residency: "Single region, or a US geographic cross-region inference profile (us.*)"
+    eu_residency: true
+    fedramp: moderate
+    il: 0
+    itar: false
+    private_networking: "AWS PrivateLink interface endpoint for bedrock-runtime"
+    sdk_env: {CLAUDE_CODE_USE_BEDROCK: "1", AWS_REGION: "<region>"}
+    endpoint: bedrock-runtime.us-east-1.amazonaws.com
+    source: https://aws.amazon.com/blogs/machine-learning/securing-amazon-bedrock-cross-region-inference-geographic-and-global/
+  bedrock-govcloud:
+    title: "Amazon Bedrock in AWS GovCloud (US)"
+    processor: AWS
+    phi: "Yes, under the AWS BAA"
+    hipaa: true
+    zdr: "As commercial Bedrock"
+    us_residency: "GovCloud (US) regions, US persons operate"
+    eu_residency: false
+    fedramp: high
+    il: 5
+    itar: true
+    private_networking: "AWS PrivateLink in GovCloud"
+    sdk_env: {CLAUDE_CODE_USE_BEDROCK: "1", AWS_REGION: "us-gov-west-1"}
+    endpoint: bedrock-runtime.us-gov-west-1.amazonaws.com
+    source: https://claude.com/solutions/government
+    note: "Fewer Claude models are available in GovCloud than in commercial regions: confirm your model before you design around it."
+  google-agent-platform:
+    title: "Google Cloud Agent Platform (formerly Vertex AI), Google-managed Claude"
+    processor: Google
+    phi: "Yes, under the Google Cloud BAA"
+    hipaa: true
+    zdr: "Google processes; see Google Cloud's data governance terms"
+    us_residency: "Regional or US multi-region endpoint"
+    eu_residency: true
+    fedramp: high
+    il: 2
+    itar: false
+    private_networking: "Private Service Connect for Google APIs (confirm for your endpoint); VPC Service Controls perimeter"
+    sdk_env: {CLAUDE_CODE_USE_VERTEX: "1", CLOUD_ML_REGION: "<region>", ANTHROPIC_VERTEX_PROJECT_ID: "<project>"}
+    endpoint: us-east5-aiplatform.googleapis.com
+    source: https://claude.com/resources/articles/claude-on-google-cloud-fedramp-high
+    note: "FedRAMP High through Assured Workloads; not an IL5 environment."
+  microsoft-foundry:
+    title: "Claude in Microsoft Foundry"
+    processor: Anthropic
+    phi: "Yes, with a BAA and the HIPAA configuration on the Azure subscription"
+    hipaa: true
+    zdr: "Get it in writing for your deployment"
+    # Anthropic lists Foundry as HIPAA-eligible with a BAA and the HIPAA configuration on the Azure subscription.
+    us_residency: "US Data Zone Standard, for Azure-hosted models only"
+    eu_residency: false
+    fedramp: none
+    il: 0
+    itar: false
+    private_networking: "Private endpoints aren't documented for Claude: don't assume them"
+    sdk_env: {CLAUDE_CODE_USE_FOUNDRY: "1"}
+    endpoint: "(your Foundry resource)"
+    source: https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
+  claude-for-government:
+    title: "Claude for Government (Anthropic, FedRAMP High)"
+    processor: Anthropic
+    phi: "Ask: authorized for CUI and FIPS 199 High data; a BAA is a separate question"
+    hipaa: ask
+    zdr: "Dedicated, pre-authorized government environment"
+    us_residency: "US"
+    eu_residency: false
+    fedramp: high
+    il: 0
+    itar: false
+    private_networking: "Dedicated environment"
+    sdk_env: {}
+    endpoint: "(provided at onboarding)"
+    source: https://claude.com/solutions/government
+    note: "Confirm that your use (apps, Claude Code or API access for your own agents) is inside the authorized boundary. Not an IL5 environment."

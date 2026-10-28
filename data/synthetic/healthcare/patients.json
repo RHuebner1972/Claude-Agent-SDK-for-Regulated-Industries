@@ -1,0 +1,154 @@
+[
+  {
+    "patient_id": "P-001",
+    "first_name": "Maria",
+    "last_name": "Delgado",
+    "dob": "1961-03-14",
+    "sex": "F",
+    "address": {
+      "street": "42 Harbor St",
+      "city": "Quincy",
+      "state": "MA",
+      "zip": "02169"
+    },
+    "phone": "617-555-0143",
+    "email": "maria.delgado@example.com",
+    "ssn": "912-45-6789",
+    "mrn": "4829173",
+    "member_id": "NEH482913057",
+    "plan": "Commercial PPO"
+  },
+  {
+    "patient_id": "P-002",
+    "first_name": "James",
+    "last_name": "Okafor",
+    "dob": "1958-11-02",
+    "sex": "M",
+    "address": {
+      "street": "19 Linden Ave",
+      "city": "Braintree",
+      "state": "MA",
+      "zip": "02184"
+    },
+    "phone": "781-555-0177",
+    "email": "j.okafor@example.org",
+    "ssn": "934-12-0071",
+    "mrn": "5537204",
+    "member_id": "NEH553720481",
+    "plan": "Medicare Advantage"
+  },
+  {
+    "patient_id": "P-003",
+    "first_name": "Priya",
+    "last_name": "Raman",
+    "dob": "1987-06-25",
+    "sex": "F",
+    "address": {
+      "street": "7 Ocean View Rd",
+      "city": "Hull",
+      "state": "MA",
+      "zip": "02045"
+    },
+    "phone": "781-555-0119",
+    "email": "priya.raman@example.com",
+    "ssn": "901-88-2345",
+    "mrn": "6110458",
+    "member_id": "NEH611045822",
+    "plan": "Commercial HMO"
+  },
+  {
+    "patient_id": "P-004",
+    "first_name": "Robert",
+    "last_name": "Kowalski",
+    "dob": "1949-01-30",
+    "sex": "M",
+    "address": {
+      "street": "233 Washington St",
+      "city": "Weymouth",
+      "state": "MA",
+      "zip": "02188"
+    },
+    "phone": "781-555-0102",
+    "email": "rkowalski49@example.net",
+    "ssn": "923-50-1188",
+    "mrn": "3305921",
+    "member_id": "NEH330592166",
+    "plan": "Medicare Advantage"
+  },
+  {
+    "patient_id": "P-005",
+    "first_name": "Aisha",
+    "last_name": "Bennett",
+    "dob": "1995-09-09",
+    "sex": "F",
+    "address": {
+      "street": "88 Granite Ave",
+      "city": "Milton",
+      "state": "MA",
+      "zip": "02186"
+    },
+    "phone": "617-555-0168",
+    "email": "aisha.b@example.com",
+    "ssn": "915-27-4402",
+    "mrn": "7728830",
+    "member_id": "NEH772883019",
+    "plan": "Medicaid Managed Care"
+  },
+  {
+    "patient_id": "P-006",
+    "first_name": "Thomas",
+    "last_name": "Nguyen",
+    "dob": "1972-04-17",
+    "sex": "M",
+    "address": {
+      "street": "5 Pleasant St",
+      "city": "Cohasset",
+      "state": "MA",
+      "zip": "02025"
+    },
+    "phone": "781-555-0134",
+    "email": "tnguyen@example.org",
+    "ssn": "947-63-0950",
+    "mrn": "2219647",
+    "member_id": "NEH221964730",
+    "plan": "Commercial PPO"
+  },
+  {
+    "patient_id": "P-007",
+    "first_name": "Elena",
+    "last_name": "Petrova",
+    "dob": "1966-12-21",
+    "sex": "F",
+    "address": {
+      "street": "310 Hancock St",
+      "city": "Quincy",
+      "state": "MA",
+      "zip": "02171"
+    },
+    "phone": "617-555-0191",
+    "email": "elena.petrova@example.com",
+    "ssn": "908-14-7733",
+    "mrn": "8841206",
+    "member_id": "NEH884120695",
+    "plan": "Commercial PPO"
+  },
+  {
+    "patient_id": "P-008",
+    "first_name": "Marcus",
+    "last_name": "Hill",
+    "dob": "2001-08-03",
+    "sex": "M",
+    "address": {
+      "street": "61 Summer St",
+      "city": "Hingham",
+      "state": "MA",
+      "zip": "02043"
+    },
+    "phone": "781-555-0125",
+    "email": "marcus.hill01@example.com",
+    "ssn": "926-39-5104",
+    "mrn": "9013375",
+    "member_id": "NEH901337542",
+    "plan": "Commercial HMO"
+  }
+]

@@ -1,0 +1,33 @@
+# Agent cards for Northgate Precision Components' change-board assistant (synthetic, for course use).
+# Owned by the Facility Security Officer and Engineering. One card per agent: what it may see, do and return.
+name: ccb-boundaries
+version: 1.0.0
+orchestrator: ccb-orchestrator
+agents:
+  - name: ccb-orchestrator
+    role: orchestrator
+    purpose: Prepare Change Control Board agendas and schedules from ECR metadata and approved summaries
+    data_scope: [NONE]
+    tools: [list_ecrs, get_ecr_technical, schedule_ccb_review, draft_agenda_item]
+    mcp_servers: [ccb, eng_data]
+    may_delegate_to: [cleared-engineer-falcon]
+    deployment: {provider: anthropic_api, region: us, storage_region: us, environment: general-platform}
+
+  - name: cleared-engineer-falcon
+    role: subagent
+    purpose: Assess FALCON engineering changes using controlled technical data and return an ENG-FORM-7 summary
+    data_scope: [NONE, CUI, "CUI//SP-CTI"]
+    export_authorizations: [ITAR]
+    programs: [FALCON]
+    tools: [get_ecr_technical, get_drawing_notes]
+    mcp_servers: [eng_data]
+    handoff_contract: ChangeImpactSummary
+    max_turns: 8
+    prompt: >-
+      You are the cleared engineering assistant for the FALCON program, running inside the CUI enclave.
+      Read the ECR's technical data, assess the change, and reply with ONLY a JSON object in ENG-FORM-7 format:
+      ecr_id, program, change_class, recommendation, schedule_impact_days, cost_impact_band,
+      affected_assembly_count, requires_customer_approval, rationale (max 400 characters).
+      Never include dimensions, tolerances, materials, drawing numbers or test data in your reply.
+    deployment: {provider: aws_bedrock, region: us-gov-west-1, storage_region: us-gov-west-1,
+                 environment: cui-enclave, fedramp: moderate_equivalent, us_persons_only: true}

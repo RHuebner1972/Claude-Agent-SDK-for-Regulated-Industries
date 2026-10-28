@@ -1,0 +1,789 @@
+# The Regulatory Mapping Framework as data (M09): clause -> pillar -> control -> code -> test -> evidence.
+#
+# Each row maps ONE clause to the engineering control that satisfies it, the rubric items that control scores
+# against, the code that implements it and the artifact an auditor receives. The TEST column is not typed here:
+# it is looked up from the compliance suite's results (every test is tagged with the rubric items it proves), so
+# a renamed or deleted test can't leave a stale reference behind.
+#
+# Rows with rubric: [] are controls the agent rubric doesn't score (encryption at rest, contracts, user notices).
+# They name an owner instead, so the map still shows who answers for them.
+#
+# This is a teaching map, not legal advice. Requirements are paraphrased; read the current text and confirm with
+# counsel and your compliance partner which rows apply to your agent. Status as of 2026-10-27; see
+# 00_Course-Plan/Regulatory_Watchlist.md for items that are moving.
+name: course-regulatory-map
+version: 1.1.0
+as_of: "2026-10-28"
+
+regimes:
+  HIPAA:       {title: "HIPAA Privacy, Security and Breach Notification Rules", source: "45 CFR Parts 160 and 164", industry: "healthcare"}
+  PART11:      {title: "FDA electronic records and electronic signatures", source: "21 CFR Part 11", industry: "life sciences"}
+  QMSR:        {title: "FDA Quality Management System Regulation and Medical Device Reporting", source: "21 CFR 820 (incorporates ISO 13485:2016, effective 2 Feb 2026); 21 CFR 803", industry: "medical devices"}
+  FDA-AI:      {title: "FDA guidance for AI-enabled device software functions", source: "PCCP final guidance (Dec 2024); lifecycle draft guidance (Jan 2025)", industry: "medical devices"}
+  SOX:         {title: "Sarbanes-Oxley internal control over financial reporting", source: "SOX §§302, 404; PCAOB AS 2201; SEC Reg S-X Rule 2-06", industry: "public companies"}
+  GLBA:        {title: "FTC Safeguards Rule", source: "16 CFR Part 314 (non-bank financial institutions; banks follow the Interagency Guidelines)", industry: "financial services"}
+  REG-SP:      {title: "SEC Regulation S-P (2024 amendments)", source: "17 CFR 248.30", industry: "broker-dealers and advisers"}
+  BANKING:     {title: "Federal banking agency rules", source: "Computer-security incident notification rule (12 CFR 53, 225 subpart N, 304 subpart C); Interagency Guidelines Establishing Information Security Standards", industry: "banking"}
+  NYDFS:       {title: "NYDFS Cybersecurity Regulation", source: "23 NYCRR Part 500", industry: "NY-regulated financial services"}
+  MRM:         {title: "Interagency guidance on model risk management", source: "SR 26-2 and OCC/FDIC counterparts (17 Apr 2026; replaced SR 11-7)", industry: "banking"}
+  FEDRAMP:     {title: "FedRAMP / NIST SP 800-53 Rev. 5 controls", source: "NIST SP 800-53 Rev. 5 (Release 5.2.0); FedRAMP Consolidated Rules 2026", industry: "government"}
+  CMMC:        {title: "CMMC Level 2 / DFARS 7012", source: "NIST SP 800-171 Rev. 2; DFARS 252.204-7012; 32 CFR Part 170", industry: "defense industrial base"}
+  FERPA:       {title: "Family Educational Rights and Privacy Act", source: "34 CFR Part 99", industry: "education"}
+  LEGAL:       {title: "Legal ethics and privilege", source: "ABA Model Rules 1.6, 5.1, 5.3; ABA Formal Opinion 512 (2024); United States v. Heppner (S.D.N.Y. 2026)", industry: "legal"}
+  GDPR:        {title: "General Data Protection Regulation", source: "Regulation (EU) 2016/679", industry: "any processing EU personal data"}
+  EU-AI-ACT:   {title: "EU AI Act (high-risk systems)", source: "Regulation (EU) 2024/1689 as amended by the Digital Omnibus on AI (in force 27 Jul 2026)", industry: "any high-risk AI in the EU"}
+  NIST-AI-RMF: {title: "NIST AI Risk Management Framework", source: "NIST AI 100-1 (AI RMF 1.0); NIST AI 600-1 Generative AI Profile", industry: "voluntary, cross-sector"}
+  ISO-42001:   {title: "AI management system", source: "ISO/IEC 42001:2023", industry: "certifiable, cross-sector"}
+
+# Which regimes the compliance partner has confirmed apply to each fleet agent (fleet.yaml names).
+# Not every regime applies to every agent: scoping is the first decision you make together.
+applicability:
+  ledgerbot:        [SOX, NIST-AI-RMF]
+  pa-reviewer:      [HIPAA, NIST-AI-RMF]
+  complaint-triage: [PART11, QMSR, ISO-42001]      # a QMS tool, not a device: FDA-AI rows apply when AI is in the device
+  aml-triage:       [BANKING, NYDFS, MRM, NIST-AI-RMF]
+  ccb-assistant:    [CMMC, NIST-AI-RMF]
+
+mappings:
+  # ---------------------------------------------------------------- HIPAA
+  - id: HIPAA-164.312(b)
+    regime: HIPAA
+    citation: "45 CFR 164.312(b)"
+    requirement: "Audit controls: mechanisms that record and examine activity in systems that contain or use ePHI."
+    pillar: P1
+    control: "Every prompt, tool call, result and output emits a hash-chained, attributable AuditEvent."
+    rubric: ["1.1", "1.2", "1.3"]
+    code: [src/sentinel/audit/hooks.py, src/sentinel/audit/verify.py]
+    evidence: "audit-verification.json and a sample of runs/pa-reviewer logs from the evidence pack"
+  - id: HIPAA-164.308(a)(1)(ii)(D)
+    regime: HIPAA
+    citation: "45 CFR 164.308(a)(1)(ii)(D)"
+    requirement: "Information system activity review: regularly review audit logs, access reports and incident tracking."
+    pillar: P7
+    control: "Metrics derived from the audit logs feed alert rules and a dashboard someone reviews on a schedule."
+    rubric: ["7.3"]
+    code: [src/sentinel/monitoring/metrics.py, src/sentinel/monitoring/alerts.py]
+    evidence: "dashboard.html, alerts.json and the review log"
+  - id: HIPAA-164.502(b)
+    regime: HIPAA
+    citation: "45 CFR 164.502(b), 164.514(d)"
+    requirement: "Minimum necessary: limit uses, disclosures and requests of PHI to what the purpose needs."
+    pillar: P2
+    control: "Tools return a purpose-scoped view; fields the task doesn't need never reach the model."
+    rubric: ["2.3"]
+    code: [src/sentinel/privacy/minimize.py, src/sentinel/privacy/pa_tools.py]
+    evidence: "compliance test results for 2.3 and the field allowlist per purpose"
+  - id: HIPAA-164.312(a)(1)
+    regime: HIPAA
+    citation: "45 CFR 164.312(a)(1)"
+    requirement: "Access control: allow access to ePHI only to persons or software programs granted access rights."
+    pillar: P3
+    control: "The agent runs with an explicit tool allowlist and no permission-bypass mode."
+    rubric: ["3.1", "3.2"]
+    code: [src/sentinel/policy/permissions.py, src/sentinel/monitoring/policies/fleet.yaml]
+    evidence: "fleet.yaml tool lists and compliance test results for 3.1 and 3.2"
+  - id: HIPAA-164.312(d)
+    regime: HIPAA
+    citation: "45 CFR 164.312(d)"
+    requirement: "Person or entity authentication: verify that whoever seeks access to ePHI is who they claim to be."
+    pillar: P3
+    control: "The agent authenticates with its own scoped, short-lived credential, separate from any human's."
+    rubric: ["3.3"]
+    code: [src/sentinel/deploy/identity.py, src/sentinel/deploy/policies/deployment.yaml]
+    evidence: "deployment.yaml identity block (principal, scopes, 15-minute token lifetime) and compliance test results for 3.3"
+  - id: HIPAA-164.316(b)(2)
+    regime: HIPAA
+    citation: "45 CFR 164.316(b)(2)(i)"
+    requirement: "Retain required Security Rule documentation for six years from creation or last effective date."
+    pillar: P1
+    control: "Audit storage is append-only with retention set to the longest applicable requirement."
+    rubric: ["1.4"]
+    code: [src/sentinel/deploy/retention.py, src/sentinel/deploy/policies/deployment.yaml]
+    evidence: "deployment.yaml audit_storage (compliance-mode lock, six years) and compliance test results for 1.4"
+    note: "The rule covers required documentation; many covered entities apply six years to audit logs as policy."
+  - id: HIPAA-164.308(b)
+    regime: HIPAA
+    citation: "45 CFR 164.308(b)(1), 164.502(e), 164.504(e)"
+    requirement: "Business associates: satisfactory assurances, in a written contract, before a vendor handles PHI."
+    pillar: P6
+    control: "PHI goes only to model endpoints covered by a signed BAA, in approved regions."
+    rubric: ["6.4"]
+    code: [src/sentinel/boundaries/residency.py]
+    evidence: "residency findings plus the signed BAA with the model provider"
+    note: "The BAA is a contract, not code: the test proves the routing, Legal holds the contract."
+  - id: HIPAA-164.404-410
+    regime: HIPAA
+    citation: "45 CFR 164.308(a)(6), 164.404-164.410"
+    requirement: "Security incident procedures; breach notice to individuals, HHS and, if more than 500 residents of a state are affected, the media."
+    pillar: P7
+    control: "An agent-specific incident runbook computes the notification clocks; a tabletop exercises it."
+    rubric: ["7.5"]
+    code: [src/sentinel/monitoring/incident.py]
+    evidence: "incident runbook and tabletop record"
+
+  # ---------------------------------------------------------------- FDA 21 CFR Part 11
+  - id: PART11-11.10(a)
+    regime: PART11
+    citation: "21 CFR 11.10(a)"
+    requirement: "Validate systems to ensure accuracy, reliability, consistent intended performance and the ability to discern invalid or altered records."
+    pillar: P7
+    control: "The compliance suite runs on every change, and every running configuration is an approved, revalidated change."
+    rubric: ["7.1", "7.4"]
+    code: [.github/workflows/compliance.yml, src/sentinel/monitoring/change.py]
+    evidence: "compliance-results.json and change-control.json"
+    note: "FDA's Computer Software Assurance guidance (final Sep 2025, updated Feb 2026) supports risk-based assurance for production and quality system software."
+  - id: PART11-11.10(d)
+    regime: PART11
+    citation: "21 CFR 11.10(d)"
+    requirement: "Limit system access to authorized individuals."
+    pillar: P3
+    control: "Explicit tool allowlist per agent; nothing loads ambiently."
+    rubric: ["3.1", "3.4"]
+    code: [src/sentinel/policy/permissions.py]
+    evidence: "fleet.yaml and compliance test results for 3.1"
+  - id: PART11-11.10(e)
+    regime: PART11
+    citation: "21 CFR 11.10(e)"
+    requirement: "Secure, computer-generated, time-stamped audit trails that don't obscure earlier entries, kept as long as the records."
+    pillar: P1
+    control: "Hash-chained audit events with signed checkpoints, on storage that can't be rewritten, kept for the record's life."
+    rubric: ["1.1", "1.3", "1.4"]
+    code: [src/sentinel/audit/hashing.py, src/sentinel/audit/verify.py]
+    evidence: "audit-verification.json and the retention configuration"
+  - id: PART11-11.10(f)
+    regime: PART11
+    citation: "21 CFR 11.10(f)"
+    requirement: "Operational system checks to enforce permitted sequencing of steps and events."
+    pillar: P4
+    control: "The policy engine evaluates every tool call before it runs and denies out-of-sequence actions."
+    rubric: ["4.2"]
+    code: [src/sentinel/policy/engine.py, src/sentinel/policy/policies/complaints.yaml]
+    evidence: "compliance test results for 4.2"
+  - id: PART11-11.10(g)
+    regime: PART11
+    citation: "21 CFR 11.10(g)"
+    requirement: "Authority checks: only authorized individuals can use the system, sign, alter a record or perform the operation."
+    pillar: P5
+    control: "Approvals check the approver's authority and refuse self-approval."
+    rubric: ["5.3"]
+    code: [src/sentinel/approvals/sod.py]
+    evidence: "red-team results for self-approval cases"
+  - id: PART11-11.50
+    regime: PART11
+    citation: "21 CFR 11.50, 11.70"
+    requirement: "Signed records show the signer's printed name, date and time, and the meaning of the signature, linked to the record."
+    pillar: P5
+    control: "Approval records carry signer, meaning and timestamp and are bound to the action by a signature."
+    rubric: ["5.4"]
+    code: [src/sentinel/approvals/records.py]
+    evidence: "compliance test results for 5.4 and a sample approval record"
+
+  # ---------------------------------------------------------------- QMSR / MDR
+  - id: QMSR-13485-4.1.6
+    regime: QMSR
+    citation: "21 CFR 820.10 (ISO 13485:2016 clause 4.1.6)"
+    requirement: "Validate computer software used in the quality management system, proportionate to risk, before use and after changes."
+    pillar: P7
+    control: "Agent configuration changes are fingerprinted and accepted only with a retested change record."
+    rubric: ["7.4", "4.6"]
+    code: [src/sentinel/monitoring/change.py, src/sentinel/monitoring/policies/changes.yaml]
+    evidence: "change-control.json"
+  - id: QMSR-803.50
+    regime: QMSR
+    citation: "21 CFR 803.50; ISO 13485:2016 clause 8.2.2"
+    requirement: "Evaluate complaints for reportability; file an MDR within 30 calendar days of becoming aware of a reportable event."
+    pillar: P4
+    control: "The policy engine forces possible-MDR complaints to human escalation; injected text can't downgrade them."
+    rubric: ["4.2", "4.5"]
+    code: [src/sentinel/policy/engine.py, src/sentinel/policy/policies/complaints.yaml]
+    evidence: "compliance test results for 4.2 and 4.5"
+
+  # ---------------------------------------------------------------- FDA AI guidance
+  - id: FDA-AI-PCCP
+    regime: FDA-AI
+    citation: "Final guidance: Predetermined Change Control Plans for AI-Enabled Device Software Functions (Dec 2024)"
+    requirement: "Describe planned modifications, the protocol to develop and validate them, and their impact, before making them."
+    pillar: P7
+    control: "Predetermined change types live in changes.yaml with their protocol; anything else needs a new change record."
+    rubric: ["7.4"]
+    code: [src/sentinel/monitoring/change.py, src/sentinel/monitoring/policies/changes.yaml]
+    evidence: "change-control.json"
+  - id: FDA-AI-LIFECYCLE
+    regime: FDA-AI
+    citation: "Draft guidance: AI-Enabled Device Software Functions: Lifecycle Management and Marketing Submission Recommendations (Jan 2025)"
+    requirement: "Plan for performance monitoring after deployment, because AI performance can change in the field."
+    pillar: P7
+    control: "Runtime metrics and alert rules watch the deployed agent; the red team reruns on a schedule."
+    rubric: ["7.2", "7.3"]
+    code: [src/sentinel/monitoring/metrics.py, src/sentinel/monitoring/redteam/runner.py]
+    evidence: "metrics.json, alerts.json and redteam-report.json"
+    note: "Still a draft; finalizing it is on CDRH's FY2027 priority list."
+
+  # ---------------------------------------------------------------- SOX
+  - id: SOX-ITGC-ACCESS
+    regime: SOX
+    citation: "SOX §404; PCAOB AS 2201 (IT general controls: logical access)"
+    requirement: "Access to financial systems and data is restricted to authorized users and appropriate to their role."
+    pillar: P3
+    control: "The agent holds only the tools its role needs, under its own short-lived identity."
+    rubric: ["3.1", "3.3"]
+    code: [src/sentinel/monitoring/policies/fleet.yaml]
+    evidence: "fleet.yaml, compliance test results for 3.1 and credential configuration"
+  - id: SOX-ITGC-CHANGE
+    regime: SOX
+    citation: "SOX §404; PCAOB AS 2201 (IT general controls: change management)"
+    requirement: "Changes to systems that affect financial reporting are authorized, tested and approved before production."
+    pillar: P4
+    control: "Prompt, policy, tool and model changes go through review, the compliance suite and a change record."
+    rubric: ["4.6", "7.4"]
+    code: [src/sentinel/monitoring/change.py, .github/workflows/compliance.yml]
+    evidence: "change-control.json and the pull-request history"
+  - id: SOX-SOD
+    regime: SOX
+    citation: "SOX §404 (segregation of duties; journal-entry controls)"
+    requirement: "No one person can both initiate and approve a transaction that affects the financial statements."
+    pillar: P5
+    control: "The agent recommends; a human outside the request approves; requesters and the agent can't approve."
+    rubric: ["5.1", "5.3"]
+    code: [src/sentinel/approvals/gate.py, src/sentinel/approvals/sod.py]
+    evidence: "compliance test results for 5.1 and 5.3"
+  - id: SOX-RETENTION
+    regime: SOX
+    citation: "SOX §802; SEC Reg S-X Rule 2-06 (seven-year retention of audit records)"
+    requirement: "Records relevant to the audit are retained for seven years and can't be altered or destroyed."
+    pillar: P1
+    control: "Tamper-evident audit logs on retention-locked storage."
+    rubric: ["1.3", "1.4"]
+    code: [src/sentinel/audit/verify.py]
+    evidence: "audit-verification.json and the retention configuration"
+    note: "Rule 2-06 binds the auditor; companies set log retention so the auditor's evidence survives."
+
+  # ---------------------------------------------------------------- GLBA Safeguards Rule
+  - id: GLBA-314.4(c)(1)
+    regime: GLBA
+    citation: "16 CFR 314.4(c)(1)"
+    requirement: "Access controls: authorized users only, and only the customer information they need (least privilege)."
+    pillar: P3
+    control: "Explicit tool allowlist; tools return the minimum fields; the agent has its own scoped credential."
+    rubric: ["3.1", "2.3", "3.3"]
+    code: [src/sentinel/policy/permissions.py, src/sentinel/privacy/minimize.py]
+    evidence: "compliance test results for 3.1 and 2.3 and the credential configuration"
+  - id: GLBA-314.4(c)(3)
+    regime: GLBA
+    citation: "16 CFR 314.4(c)(3)"
+    requirement: "Encrypt customer information in transit and at rest."
+    pillar: P2
+    control: "TLS to the model endpoint and encrypted storage for logs and vaults."
+    rubric: []
+    owner: "Platform security"
+    code: []
+    evidence: "platform encryption configuration"
+  - id: GLBA-314.4(c)(8)
+    regime: GLBA
+    citation: "16 CFR 314.4(c)(8)"
+    requirement: "Monitor and log the activity of authorized users and detect unauthorized access or use."
+    pillar: P1
+    control: "Every action is logged with the human and agent identity; metrics and alerts flag anomalies."
+    rubric: ["1.1", "1.2", "7.3"]
+    code: [src/sentinel/audit/hooks.py, src/sentinel/monitoring/alerts.py]
+    evidence: "audit-verification.json and alerts.json"
+  - id: GLBA-314.4(d)(2)
+    regime: GLBA
+    citation: "16 CFR 314.4(d)(2)"
+    requirement: "Continuous monitoring, or annual penetration testing and vulnerability assessments every six months."
+    pillar: P7
+    control: "The compliance suite runs on every change and the red team runs nightly."
+    rubric: ["7.1", "7.2"]
+    code: [.github/workflows/compliance.yml, src/sentinel/monitoring/redteam/runner.py]
+    evidence: "compliance-results.json and redteam-report.json"
+    note: "The red team tests the agent's controls; it doesn't replace a penetration test of the platform."
+  - id: GLBA-314.4(f)
+    regime: GLBA
+    citation: "16 CFR 314.4(f)"
+    requirement: "Oversee service providers: select capable ones, require safeguards by contract, assess them periodically."
+    pillar: P6
+    control: "Customer data reaches only approved model endpoints and regions."
+    rubric: ["6.4"]
+    code: [src/sentinel/boundaries/residency.py]
+    evidence: "residency findings plus the vendor contract and assessment"
+  - id: GLBA-314.4(h)(j)
+    regime: GLBA
+    citation: "16 CFR 314.4(h), 314.4(j)"
+    requirement: "A written incident response plan; notify the FTC within 30 days of discovering an event affecting 500+ consumers."
+    pillar: P7
+    control: "The incident runbook covers agent scenarios and computes the FTC clock."
+    rubric: ["7.5"]
+    code: [src/sentinel/monitoring/incident.py]
+    evidence: "incident runbook and tabletop record"
+
+  # ---------------------------------------------------------------- SEC Regulation S-P
+  - id: REGSP-248.30
+    regime: REG-SP
+    citation: "17 CFR 248.30(a) (as amended 2024)"
+    requirement: "An incident response program, and notice to affected individuals within 30 days of becoming aware of unauthorized access to sensitive customer information."
+    pillar: P7
+    control: "The incident runbook covers agent scenarios and computes the 30-day notice clock."
+    rubric: ["7.5"]
+    code: [src/sentinel/monitoring/incident.py]
+    evidence: "incident runbook and tabletop record"
+    note: "Compliance dates: larger entities 3 Dec 2025, smaller entities 3 Jun 2026."
+
+  # ---------------------------------------------------------------- Federal banking agencies
+  - id: BANK-36H
+    regime: BANKING
+    citation: "12 CFR 53.3 (OCC), 12 CFR 225.302 (Board), 12 CFR 304.23 (FDIC)"
+    requirement: "Notify the primary federal regulator as soon as possible, and no later than 36 hours after determining a notification incident has occurred."
+    pillar: P7
+    control: "The incident runbook covers agent scenarios and computes the 36-hour clock from the determination."
+    rubric: ["7.5"]
+    code: [src/sentinel/monitoring/incident.py]
+    evidence: "incident runbook and tabletop record"
+  - id: BANK-ISS-ACCESS
+    regime: BANKING
+    citation: "Interagency Guidelines Establishing Information Security Standards (e.g., 12 CFR 364 App. B, III.C)"
+    requirement: "Access controls on customer information systems, and monitoring to detect actual and attempted attacks or intrusions."
+    pillar: P3
+    control: "Explicit tool allowlists, a scoped agent identity, and alerts on denials and anomalies."
+    rubric: ["3.1", "3.3", "7.3"]
+    code: [src/sentinel/policy/permissions.py, src/sentinel/monitoring/alerts.py]
+    evidence: "fleet.yaml, alerts.json and the credential configuration"
+    note: "Banks follow these Guidelines; the FTC Safeguards Rule (GLBA rows) covers non-bank financial institutions."
+
+  # ---------------------------------------------------------------- NYDFS Part 500
+  - id: NYDFS-500.6
+    regime: NYDFS
+    citation: "23 NYCRR 500.6"
+    requirement: "Audit trails designed to detect and respond to cybersecurity events; keep the records for at least five years."
+    pillar: P1
+    control: "Tamper-evident audit logs feed the alerting pipeline; storage is retention-locked."
+    rubric: ["1.1", "1.3", "1.4"]
+    code: [src/sentinel/audit/verify.py, src/sentinel/monitoring/alerts.py]
+    evidence: "audit-verification.json, alerts.json and the retention configuration"
+  - id: NYDFS-500.7
+    regime: NYDFS
+    citation: "23 NYCRR 500.7"
+    requirement: "Limit access privileges to what each user needs, review them periodically, and control privileged accounts."
+    pillar: P3
+    control: "Per-agent tool allowlists, reviewed through change control; no bypass mode."
+    rubric: ["3.1", "3.2", "4.6"]
+    code: [src/sentinel/monitoring/policies/fleet.yaml, src/sentinel/monitoring/change.py]
+    evidence: "fleet.yaml and change-control.json"
+  - id: NYDFS-500.17
+    regime: NYDFS
+    citation: "23 NYCRR 500.17(a), (c)"
+    requirement: "Notify the superintendent within 72 hours of determining a cybersecurity incident occurred; 24 hours after an extortion payment."
+    pillar: P7
+    control: "The incident runbook computes the 72-hour clock from the determination."
+    rubric: ["7.5"]
+    code: [src/sentinel/monitoring/incident.py]
+    evidence: "incident runbook and tabletop record"
+
+  # ---------------------------------------------------------------- Model risk management
+  - id: MRM-VALIDATION
+    regime: MRM
+    citation: "SR 26-2 (validation: conceptual soundness, outcomes analysis, ongoing monitoring)"
+    requirement: "Models are validated before use and monitored after, with rigor proportionate to risk and materiality."
+    pillar: P7
+    control: "Executable evals in CI, a scheduled red team and runtime metrics on every agent in the inventory."
+    rubric: ["7.1", "7.2", "7.3"]
+    code: [src/sentinel/monitoring/fleet.py, .github/workflows/compliance.yml]
+    evidence: "fleet.yaml (the inventory), compliance-results.json, redteam-report.json, metrics.json"
+    note: "SR 26-2 puts generative and agentic AI outside its scope. Banks govern agents under broader risk management; many apply these principles by policy. Confirm your institution's position."
+
+  # ---------------------------------------------------------------- FedRAMP / NIST SP 800-53
+  - id: 80053-AU-2-3-12
+    regime: FEDRAMP
+    citation: "NIST SP 800-53 Rev. 5 AU-2, AU-3, AU-12"
+    requirement: "Define the events to log, what each record contains (what, when, where, source, outcome, identity), and generate them."
+    pillar: P1
+    control: "The AuditEvent schema defines the content; hooks generate one for every event type."
+    rubric: ["1.1", "1.2"]
+    code: [src/sentinel/audit/models.py, src/sentinel/audit/hooks.py]
+    evidence: "AuditEvent schema and compliance test results for 1.1 and 1.2"
+  - id: 80053-AU-9
+    regime: FEDRAMP
+    citation: "NIST SP 800-53 Rev. 5 AU-9"
+    requirement: "Protect audit information and tools from unauthorized access, modification and deletion."
+    pillar: P1
+    control: "Hash chain plus HMAC-signed checkpoints; verification runs automatically."
+    rubric: ["1.3"]
+    code: [src/sentinel/audit/hashing.py, src/sentinel/audit/verify.py]
+    evidence: "audit-verification.json"
+  - id: 80053-AU-11
+    regime: FEDRAMP
+    citation: "NIST SP 800-53 Rev. 5 AU-11"
+    requirement: "Retain audit records for the defined period to support after-the-fact investigations."
+    pillar: P1
+    control: "Retention-locked audit storage."
+    rubric: ["1.4"]
+    code: [src/sentinel/deploy/retention.py, src/sentinel/deploy/policies/deployment.yaml]
+    evidence: "deployment.yaml audit_storage and retention rules; compliance test results for 1.4"
+  - id: 80053-AC-6
+    regime: FEDRAMP
+    citation: "NIST SP 800-53 Rev. 5 AC-6"
+    requirement: "Least privilege: allow only the access users and processes need for their assigned tasks."
+    pillar: P3
+    control: "Explicit tool allowlists, no bypass mode, nothing loaded ambiently."
+    rubric: ["3.1", "3.2", "3.4"]
+    code: [src/sentinel/policy/permissions.py]
+    evidence: "compliance test results for 3.1 and 3.2"
+  - id: 80053-AC-4
+    regime: FEDRAMP
+    citation: "NIST SP 800-53 Rev. 5 AC-4"
+    requirement: "Information flow enforcement: control where information can flow within and between systems."
+    pillar: P6
+    control: "Typed handoff contracts strip disallowed fields; restricted data stays in its enclave."
+    rubric: ["6.2", "6.5"]
+    code: [src/sentinel/boundaries/contracts.py, src/sentinel/boundaries/routing.py]
+    evidence: "compliance test results for 6.2 and 6.5"
+  - id: 80053-AC-5
+    regime: FEDRAMP
+    citation: "NIST SP 800-53 Rev. 5 AC-5"
+    requirement: "Separation of duties."
+    pillar: P5
+    control: "Requesters and the agent can't approve their own actions."
+    rubric: ["5.3"]
+    code: [src/sentinel/approvals/sod.py]
+    evidence: "red-team results for self-approval cases"
+  - id: 80053-SI-10
+    regime: FEDRAMP
+    citation: "NIST SP 800-53 Rev. 5 SI-10"
+    requirement: "Check the validity of information inputs."
+    pillar: P4
+    control: "Pydantic models validate every tool input; injected content can't change permissions."
+    rubric: ["4.4", "4.5"]
+    code: [src/sentinel/policy/models.py]
+    evidence: "compliance test results for 4.5 and the reviewed schema list"
+  - id: 80053-CA-7
+    regime: FEDRAMP
+    citation: "NIST SP 800-53 Rev. 5 CA-7, CM-3"
+    requirement: "Continuous monitoring of control effectiveness; configuration change control."
+    pillar: P7
+    control: "The suite runs on every change and nightly; configurations are fingerprinted and change-controlled."
+    rubric: ["7.1", "7.3", "7.4"]
+    code: [.github/workflows/compliance.yml, src/sentinel/monitoring/change.py]
+    evidence: "compliance-results.json, metrics.json and change-control.json"
+    note: "FedRAMP 20x (Consolidated Rules 2026) leans on automated, machine-readable validation: the same evidence, produced continuously."
+
+  # ---------------------------------------------------------------- CMMC / NIST SP 800-171 / DFARS 7012
+  - id: 800171-3.1.3
+    regime: CMMC
+    citation: "NIST SP 800-171 Rev. 2 3.1.3"
+    requirement: "Control the flow of CUI in accordance with approved authorizations."
+    pillar: P6
+    control: "CUI stays in the enclave subagent; only a typed, marked summary crosses the boundary."
+    rubric: ["6.2", "6.5"]
+    code: [src/sentinel/boundaries/contracts.py, src/sentinel/boundaries/markings.py]
+    evidence: "compliance test results for 6.2 and 6.5"
+  - id: 800171-3.1.5
+    regime: CMMC
+    citation: "NIST SP 800-171 Rev. 2 3.1.5"
+    requirement: "Employ least privilege, including for specific security functions and privileged accounts."
+    pillar: P3
+    control: "Per-agent tool allowlists from the agent cards."
+    rubric: ["3.1", "6.1"]
+    code: [src/sentinel/boundaries/cards.py, src/sentinel/boundaries/policies/agent_cards.yaml]
+    evidence: "agent_cards.yaml and compliance test results for 6.1"
+  - id: 800171-3.3.1-2
+    regime: CMMC
+    citation: "NIST SP 800-171 Rev. 2 3.3.1, 3.3.2"
+    requirement: "Create and retain audit records; trace the actions of individual users to those users."
+    pillar: P1
+    control: "Attributable audit events, routed per enclave, on retention-locked storage."
+    rubric: ["1.1", "1.2", "1.4"]
+    code: [src/sentinel/audit/hooks.py, src/sentinel/boundaries/routing.py]
+    evidence: "audit-verification.json and the retention configuration"
+  - id: 800171-3.1.4
+    regime: CMMC
+    citation: "NIST SP 800-171 Rev. 2 3.1.4"
+    requirement: "Separate the duties of individuals to reduce the risk of malevolent activity without collusion."
+    pillar: P5
+    control: "Requesters and the agent can't approve their own actions."
+    rubric: ["5.3"]
+    code: [src/sentinel/approvals/sod.py]
+    evidence: "red-team results for self-approval cases"
+  - id: DFARS-7012(c)
+    regime: CMMC
+    citation: "DFARS 252.204-7012(c)"
+    requirement: "Rapidly report cyber incidents affecting covered defense information to DoD within 72 hours of discovery."
+    pillar: P7
+    control: "The incident runbook covers agent scenarios and computes the 72-hour clock."
+    rubric: ["7.5"]
+    code: [src/sentinel/monitoring/incident.py]
+    evidence: "incident runbook and tabletop record"
+
+  # ---------------------------------------------------------------- FERPA
+  - id: FERPA-99.31(a)(1)(i)(B)
+    regime: FERPA
+    citation: "34 CFR 99.31(a)(1)(i)(B)"
+    requirement: "A contractor may receive education records as a school official if it performs an institutional service, is under the school's direct control for use and maintenance of the records, and follows the redisclosure limits."
+    pillar: P6
+    control: "Each agent has a card documenting its institutional function, data scope and tools."
+    rubric: ["6.1"]
+    code: [src/sentinel/boundaries/cards.py]
+    evidence: "agent cards and the vendor agreement"
+  - id: FERPA-99.31(a)(1)(ii)
+    regime: FERPA
+    citation: "34 CFR 99.31(a)(1)(ii)"
+    requirement: "Use reasonable methods to ensure school officials access only the records in which they have a legitimate educational interest."
+    pillar: P3
+    control: "Tools check the requester's role and return only the fields the task needs."
+    rubric: ["3.1", "2.3"]
+    code: [src/sentinel/policy/permissions.py, src/sentinel/privacy/minimize.py]
+    evidence: "compliance test results for 3.1 and 2.3"
+  - id: FERPA-99.33
+    regime: FERPA
+    citation: "34 CFR 99.33(a)"
+    requirement: "Personal information from education records is disclosed on condition that the recipient won't redisclose it without consent."
+    pillar: P6
+    control: "Sessions and memory are isolated per student and case; handoffs strip identifiers."
+    rubric: ["6.3", "6.2"]
+    code: [src/sentinel/boundaries/guard.py, src/sentinel/boundaries/contracts.py]
+    evidence: "compliance test results for 6.2 and 6.3"
+
+  # ---------------------------------------------------------------- Legal
+  - id: LEGAL-1.6(c)
+    regime: LEGAL
+    citation: "ABA Model Rule 1.6(c); ABA Formal Opinion 512"
+    requirement: "Make reasonable efforts to prevent unauthorized disclosure of client information, including through generative AI tools."
+    pillar: P6
+    control: "Matters are separate boundaries: one client's data can't reach another matter's session or memory."
+    rubric: ["6.3", "2.2"]
+    code: [src/sentinel/boundaries/guard.py, src/sentinel/privacy/mask.py]
+    evidence: "compliance test results for 6.3 and 2.2"
+  - id: LEGAL-5.1-5.3
+    regime: LEGAL
+    citation: "ABA Model Rules 5.1, 5.3; ABA Formal Opinion 512"
+    requirement: "Lawyers supervise the people and tools that help them; AI output is reviewed before it's relied on."
+    pillar: P5
+    control: "Anything filed or sent to a client needs a lawyer's approval in one review view."
+    rubric: ["5.1", "5.2"]
+    code: [src/sentinel/approvals/gate.py]
+    evidence: "compliance test results for 5.1 and the approval view"
+  - id: LEGAL-PRIVILEGE
+    regime: LEGAL
+    citation: "United States v. Heppner (S.D.N.Y. Feb 2026)"
+    requirement: "A client's own exchanges with a consumer AI tool were held neither privileged nor work product: no attorney, no expectation of confidentiality, not at counsel's direction."
+    pillar: P6
+    control: "Legal work runs on an enterprise deployment with confidentiality terms, at counsel's direction, with that direction logged."
+    rubric: ["6.4", "1.2"]
+    code: [src/sentinel/boundaries/residency.py]
+    evidence: "deployment contract terms and audit events showing the directing attorney"
+    note: "Whether enterprise terms preserve privilege hasn't been tested in court. Treat this row as risk reduction."
+
+  # ---------------------------------------------------------------- GDPR
+  - id: GDPR-5(2)-30
+    regime: GDPR
+    citation: "GDPR Art. 5(2), Art. 30"
+    requirement: "Accountability: be able to demonstrate compliance; keep records of processing activities."
+    pillar: P1
+    control: "A signed evidence pack and audit trail show what the agent processed and why."
+    rubric: ["1.1", "7.6"]
+    code: [src/sentinel/evidence/pack.py]
+    evidence: "the evidence pack and the record of processing"
+  - id: GDPR-5(1)(c)-25
+    regime: GDPR
+    citation: "GDPR Art. 5(1)(c), Art. 25"
+    requirement: "Data minimisation; data protection by design and by default."
+    pillar: P2
+    control: "Purpose-scoped tool views; personal data masked before logs and traces."
+    rubric: ["2.3", "2.2"]
+    code: [src/sentinel/privacy/minimize.py, src/sentinel/privacy/mask.py]
+    evidence: "compliance test results for 2.2 and 2.3"
+  - id: GDPR-5(1)(e)
+    regime: GDPR
+    citation: "GDPR Art. 5(1)(e)"
+    requirement: "Storage limitation: keep personal data no longer than the purpose needs."
+    pillar: P2
+    control: "Retention and deletion for transcripts, logs and caches, tested."
+    rubric: ["2.6"]
+    code: [src/sentinel/deploy/retention.py, src/sentinel/deploy/policies/deployment.yaml]
+    evidence: "deployment.yaml retention rules, deletion receipts in the audit trail, compliance test results for 2.6"
+  - id: GDPR-32
+    regime: GDPR
+    citation: "GDPR Art. 32"
+    requirement: "Security appropriate to the risk, including pseudonymisation and regular testing of measures."
+    pillar: P2
+    control: "Vaulted reversible tokens with logged re-identification; controls tested in CI."
+    rubric: ["2.4", "7.1"]
+    code: [src/sentinel/privacy/vault.py]
+    evidence: "vault access log and compliance-results.json"
+  - id: GDPR-22
+    regime: GDPR
+    citation: "GDPR Art. 22"
+    requirement: "Safeguards for decisions based solely on automated processing with legal or similarly significant effects, including human intervention."
+    pillar: P5
+    control: "Significant decisions need a human approver who sees the evidence and rationale."
+    rubric: ["5.1", "5.2"]
+    code: [src/sentinel/approvals/gate.py]
+    evidence: "compliance test results for 5.1 and the approval view"
+  - id: GDPR-28-44
+    regime: GDPR
+    citation: "GDPR Art. 28, Arts. 44-49"
+    requirement: "Processors bound by contract; transfers outside the EEA only with an approved mechanism."
+    pillar: P6
+    control: "Personal data reaches only approved processors in approved regions."
+    rubric: ["6.4"]
+    code: [src/sentinel/boundaries/residency.py]
+    evidence: "residency findings plus the DPA and transfer mechanism"
+  - id: GDPR-33-34
+    regime: GDPR
+    citation: "GDPR Art. 33, Art. 34"
+    requirement: "Notify the supervisory authority within 72 hours of becoming aware of a breach; tell data subjects when the risk is high."
+    pillar: P7
+    control: "The incident runbook computes the 72-hour clock."
+    rubric: ["7.5"]
+    code: [src/sentinel/monitoring/incident.py]
+    evidence: "incident runbook and tabletop record"
+  - id: GDPR-35
+    regime: GDPR
+    citation: "GDPR Art. 35"
+    requirement: "A data protection impact assessment before high-risk processing."
+    pillar: P2
+    control: "The data inventory and classification feed the DPIA."
+    rubric: ["2.1"]
+    code: [src/sentinel/privacy/classes.py]
+    evidence: "data inventory and the DPIA document"
+
+  # ---------------------------------------------------------------- EU AI Act
+  - id: AIA-9
+    regime: EU-AI-ACT
+    citation: "EU AI Act Art. 9"
+    requirement: "A risk management system running across the whole lifecycle, with testing against defined metrics."
+    pillar: P7
+    control: "Executable evals and a red team run continuously; changes are revalidated."
+    rubric: ["7.1", "7.2", "7.4"]
+    code: [.github/workflows/compliance.yml, src/sentinel/monitoring/redteam/runner.py]
+    evidence: "compliance-results.json and redteam-report.json"
+  - id: AIA-10
+    regime: EU-AI-ACT
+    citation: "EU AI Act Art. 10"
+    requirement: "Data governance for training, validation and test data, including examination for bias."
+    pillar: P2
+    control: "Data classes are inventoried; detection recall is measured against a labeled synthetic set."
+    rubric: ["2.1", "2.5"]
+    code: [src/sentinel/privacy/classes.py]
+    evidence: "data inventory and the detection eval report"
+    note: "Art. 10 is mainly a provider duty about model data; the rows here cover what an agent builder controls."
+  - id: AIA-12-19
+    regime: EU-AI-ACT
+    citation: "EU AI Act Art. 12, Art. 19, Art. 26(6)"
+    requirement: "Automatic logging over the system's lifetime; providers and deployers keep logs for at least six months."
+    pillar: P1
+    control: "Every event is logged with model, prompt and policy versions, on retention-locked storage."
+    rubric: ["1.1", "1.5", "1.4"]
+    code: [src/sentinel/audit/hooks.py]
+    evidence: "compliance test results for 1.1 and 1.5 and the retention configuration"
+  - id: AIA-14
+    regime: EU-AI-ACT
+    citation: "EU AI Act Art. 14"
+    requirement: "Human oversight: people can understand, interpret, override and stop the system, aware of automation bias."
+    pillar: P5
+    control: "Approval gates for high-impact actions, one-view evidence for approvers and a tested kill switch."
+    rubric: ["5.1", "5.2", "5.6"]
+    code: [src/sentinel/approvals/gate.py, src/sentinel/approvals/killswitch.py]
+    evidence: "compliance test results for 5.1 and the kill-switch drill record"
+  - id: AIA-15
+    regime: EU-AI-ACT
+    citation: "EU AI Act Art. 15"
+    requirement: "Accuracy, robustness and cybersecurity, including resilience to attempts to manipulate the system."
+    pillar: P4
+    control: "Injected content can't escalate privileges; the red team proves it on a schedule."
+    rubric: ["4.5", "7.2"]
+    code: [src/sentinel/policy/enforce.py, src/sentinel/monitoring/redteam/runner.py]
+    evidence: "redteam-report.json"
+  - id: AIA-26
+    regime: EU-AI-ACT
+    citation: "EU AI Act Art. 26(1)-(2)"
+    requirement: "Deployers use the system per its instructions and assign oversight to people with the competence, training and authority to do it."
+    pillar: P5
+    control: "Named approvers with defined authority; segregation of duties enforced."
+    rubric: ["5.3", "5.4"]
+    code: [src/sentinel/approvals/sod.py, src/sentinel/approvals/records.py]
+    evidence: "approval records and the approver roster"
+  - id: AIA-50
+    regime: EU-AI-ACT
+    citation: "EU AI Act Art. 50(1)"
+    requirement: "People are told they're interacting with an AI system unless that's obvious (applies from 2 Aug 2026, not only to high-risk systems)."
+    pillar: P4
+    control: "The user interface discloses the agent."
+    rubric: []
+    owner: "Product and UX"
+    code: []
+    evidence: "screenshot of the disclosure and the UX review"
+  - id: AIA-72-73
+    regime: EU-AI-ACT
+    citation: "EU AI Act Art. 72, Art. 73"
+    requirement: "Post-market monitoring; report serious incidents to the market surveillance authority within set deadlines."
+    pillar: P7
+    control: "Runtime metrics and alerts; the incident runbook includes the AI Act reporting path."
+    rubric: ["7.3", "7.5"]
+    code: [src/sentinel/monitoring/metrics.py, src/sentinel/monitoring/incident.py]
+    evidence: "metrics.json, alerts.json and the incident runbook"
+
+  # ---------------------------------------------------------------- NIST AI RMF
+  - id: AIRMF-GOVERN-1.1
+    regime: NIST-AI-RMF
+    citation: "AI RMF GOVERN 1.1"
+    requirement: "Legal and regulatory requirements involving AI are understood, managed and documented."
+    pillar: P7
+    control: "This map, versioned in the repo and rendered into every evidence pack."
+    rubric: ["7.6"]
+    code: [src/sentinel/evidence/mapping.py, src/sentinel/evidence/policies/regulatory_map.yaml]
+    evidence: "regulatory-trace.md in the evidence pack"
+  - id: AIRMF-MAP-1.1
+    regime: NIST-AI-RMF
+    citation: "AI RMF MAP 1.1"
+    requirement: "Intended purposes, context and settings of deployment are understood and documented."
+    pillar: P6
+    control: "Agent cards and the fleet manifest document each agent's purpose, scope, tools and owner."
+    rubric: ["6.1"]
+    code: [src/sentinel/monitoring/policies/fleet.yaml, src/sentinel/boundaries/policies/agent_cards.yaml]
+    evidence: "fleet.yaml and agent cards"
+  - id: AIRMF-MEASURE-2.7
+    regime: NIST-AI-RMF
+    citation: "AI RMF MEASURE 2.7"
+    requirement: "AI system security and resilience are evaluated and documented."
+    pillar: P7
+    control: "Red-team corpus of injection, exfiltration and evasion cases, run on a schedule."
+    rubric: ["7.2", "4.5"]
+    code: [src/sentinel/monitoring/redteam/runner.py]
+    evidence: "redteam-report.json"
+  - id: AIRMF-MANAGE-4.1
+    regime: NIST-AI-RMF
+    citation: "AI RMF MANAGE 4.1"
+    requirement: "Post-deployment monitoring plans are implemented, including incident response and change management."
+    pillar: P7
+    control: "Metrics, alerts, change control and the incident runbook."
+    rubric: ["7.3", "7.4", "7.5"]
+    code: [src/sentinel/monitoring/alerts.py, src/sentinel/monitoring/change.py]
+    evidence: "alerts.json, change-control.json and the runbook"
+
+  # ---------------------------------------------------------------- ISO/IEC 42001
+  - id: ISO42001-A.6.2.8
+    regime: ISO-42001
+    citation: "ISO/IEC 42001:2023 Annex A control A.6.2.8"
+    requirement: "Determine at which lifecycle phases event logging is enabled, at minimum while the AI system is in use."
+    pillar: P1
+    control: "Audit hooks are always on in every environment the agent runs."
+    rubric: ["1.1"]
+    code: [src/sentinel/audit/hooks.py]
+    evidence: "compliance test results for 1.1"
+  - id: ISO42001-6.1.4
+    regime: ISO-42001
+    citation: "ISO/IEC 42001:2023 clause 6.1.4 (with ISO/IEC 42005:2025)"
+    requirement: "Assess the potential consequences of the AI system for individuals, groups and society."
+    pillar: P2
+    control: "The data inventory and agent cards are inputs to the impact assessment."
+    rubric: ["2.1", "6.1"]
+    code: [src/sentinel/privacy/classes.py, src/sentinel/boundaries/cards.py]
+    evidence: "impact assessment document, data inventory and agent cards"
+  - id: ISO42001-9.1-9.2
+    regime: ISO-42001
+    citation: "ISO/IEC 42001:2023 clauses 9.1, 9.2"
+    requirement: "Monitor, measure, analyse and evaluate the AI management system; run internal audits."
+    pillar: P7
+    control: "Signed evidence packs on every release give internal audit a fixed, verifiable sample."
+    rubric: ["7.3", "7.6"]
+    code: [src/sentinel/evidence/pack.py]
+    evidence: "the evidence pack"

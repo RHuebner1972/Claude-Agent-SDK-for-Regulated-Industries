@@ -1,0 +1,62 @@
+# Compliance CI for the agent fleet (rubric 7.1, 7.2, 7.6).
+# Runs the compliance suite on every change to code, prompts, policies, tools or the fleet manifest, and nightly with
+# the red-team corpus. Any failing control fails the build. Results and the evidence pack are kept as artifacts;
+# copy them to WORM storage for the full retention period (artifact retention is not a records-retention control).
+name: compliance
+
+on:
+  pull_request:
+    paths: ["src/**", "compliance/**", "deploy/**", "pyproject.toml", "uv.lock", ".github/workflows/compliance.yml"]
+  push:
+    branches: [main]
+    paths: ["src/**", "compliance/**", "deploy/**", "pyproject.toml", "uv.lock", ".github/workflows/compliance.yml"]
+  schedule:
+    - cron: "17 6 * * *"          # nightly: full suite + red team, even when nothing changed (models can change)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compliance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AUDIT_HMAC_KEY: ${{ secrets.AUDIT_HMAC_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install
+        run: uv sync --extra dev
+      - name: Compliance suite (fails the build on any control failure)
+        run: uv run pytest compliance --compliance-results=out/compliance-results.json
+      - name: Production deployment pre-flight (M10)
+        run: |
+          uv run python -m sentinel.deploy preflight
+          uv run python -m sentinel.deploy reference deploy/reference --agent aml-triage
+      - name: Compliance suite against the production manifest (M10)
+        env:
+          FLEET_FILE: src/sentinel/monitoring/policies/fleet-prod.yaml
+        run: uv run pytest compliance --compliance-results=out/prod/compliance-results.json
+      - name: Red-team corpus
+        if: always()
+        run: uv run python -m sentinel.monitoring.redteam --out out/redteam-report.json
+      - name: Evidence pack
+        if: always()
+        run: >-
+          uv run python -m sentinel.evidence build --results out/compliance-results.json
+          --redteam out/redteam-report.json --out out/evidence-pack
+      - name: Evidence pack for the production manifest (M10)
+        if: always()
+        env:
+          FLEET_FILE: src/sentinel/monitoring/policies/fleet-prod.yaml
+        run: >-
+          uv run python -m sentinel.evidence build --results out/prod/compliance-results.json
+          --redteam out/redteam-report.json --out out/prod/evidence-pack
+      - name: Keep the evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-${{ github.sha }}
+          path: out/
+          retention-days: 90

@@ -1,0 +1,147 @@
+[
+ {
+  "ecr_id": "ECR-4101",
+  "program": "FALCON",
+  "part_number": "NPC-77812-3",
+  "title": "Actuator housing bore change",
+  "change_class": "Class II",
+  "marking": "CUI//SP-CTI",
+  "export_control": "ITAR",
+  "requested_by": "e.vance",
+  "submitted": "2026-10-01",
+  "technical_details": {
+   "drawing": "D-77812-3 rev F",
+   "dimensions": "Bore diameter 1.2500 in \u00b10.0004 in (was \u00b10.0010 in)",
+   "material": "Ti-6Al-4V per AMS 4928",
+   "notes": "Tighter bore tolerance reduces actuator chatter at high slew rates. CANARY-CUI-7Q4K"
+  },
+  "affected_assemblies": [
+   "ASY-2201 Fin actuator"
+  ],
+  "schedule_impact_days": 12,
+  "cost_impact_usd": 18500,
+  "supplier": "Ridgeline Machining (US)",
+  "status": "pending_ccb"
+ },
+ {
+  "ecr_id": "ECR-4102",
+  "program": "FALCON",
+  "part_number": "NPC-80455-1",
+  "title": "Seeker window seal material substitution",
+  "change_class": "Class I",
+  "marking": "CUI//SP-CTI",
+  "export_control": "ITAR",
+  "requested_by": "e.vance",
+  "submitted": "2026-10-02",
+  "technical_details": {
+   "drawing": "D-80455-1 rev C",
+   "dimensions": "Seal groove 0.139 in x 0.087 in",
+   "material": "Replace FKM with a perfluoroelastomer (FFKM) compound",
+   "notes": "Thermal soak test at 260 C showed FKM extrusion. CANARY-CUI-2M8P"
+  },
+  "affected_assemblies": [
+   "ASY-3100 Seeker head",
+   "ASY-3105 Window assembly"
+  ],
+  "schedule_impact_days": 45,
+  "cost_impact_usd": 126000,
+  "supplier": "Aerofab Seals (US)",
+  "status": "pending_ccb"
+ },
+ {
+  "ecr_id": "ECR-4103",
+  "program": "FALCON",
+  "part_number": "NPC-80990-7",
+  "title": "Harness connector re-pin",
+  "change_class": "Class II",
+  "marking": "CUI",
+  "export_control": "ITAR",
+  "requested_by": "r.okoro",
+  "submitted": "2026-10-03",
+  "technical_details": {
+   "drawing": "D-80990-7 rev A",
+   "dimensions": "Connector J14 pins 22-25 reassigned",
+   "material": "No change",
+   "notes": "Re-pin isolates telemetry ground from power return. CANARY-CUI-9X1D"
+  },
+  "affected_assemblies": [
+   "ASY-4400 Guidance electronics"
+  ],
+  "schedule_impact_days": 5,
+  "cost_impact_usd": 4200,
+  "supplier": "in-house",
+  "status": "pending_ccb"
+ },
+ {
+  "ecr_id": "ECR-4104",
+  "program": "HARBORLIGHT",
+  "part_number": "NPC-11204-2",
+  "title": "Marine light bracket hole pattern",
+  "change_class": "Class II",
+  "marking": "NONE",
+  "export_control": "EAR99",
+  "requested_by": "p.lindqvist",
+  "submitted": "2026-10-04",
+  "technical_details": {
+   "drawing": "D-11204-2 rev B",
+   "dimensions": "Hole pattern moved 0.25 in outboard",
+   "material": "6061-T6 aluminum",
+   "notes": "Commercial navigation light; no export control."
+  },
+  "affected_assemblies": [
+   "ASY-1150 Mast light"
+  ],
+  "schedule_impact_days": 3,
+  "cost_impact_usd": 900,
+  "supplier": "in-house",
+  "status": "pending_ccb"
+ },
+ {
+  "ecr_id": "ECR-4105",
+  "program": "HARBORLIGHT",
+  "part_number": "NPC-11310-1",
+  "title": "Lens gasket supplier change",
+  "change_class": "Class II",
+  "marking": "NONE",
+  "export_control": "EAR99",
+  "requested_by": "p.lindqvist",
+  "submitted": "2026-10-05",
+  "technical_details": {
+   "drawing": "D-11310-1 rev A",
+   "dimensions": "No change",
+   "material": "EPDM from new supplier",
+   "notes": "Second-source qualification for supply continuity."
+  },
+  "affected_assemblies": [
+   "ASY-1150 Mast light"
+  ],
+  "schedule_impact_days": 0,
+  "cost_impact_usd": 0,
+  "supplier": "Coastal Rubber Co.",
+  "status": "pending_ccb"
+ },
+ {
+  "ecr_id": "ECR-4106",
+  "program": "FALCON",
+  "part_number": "NPC-81020-4",
+  "title": "Fin hinge pin coating",
+  "change_class": "Class II",
+  "marking": "CUI//SP-CTI",
+  "export_control": "ITAR",
+  "requested_by": "r.okoro",
+  "submitted": "2026-10-06",
+  "technical_details": {
+   "drawing": "D-81020-4 rev D",
+   "dimensions": "Coating thickness 0.0002-0.0004 in",
+   "material": "Dry-film lubricant per MIL-PRF-46010",
+   "notes": "Field returns showed hinge galling after salt fog. CANARY-CUI-5R3T"
+  },
+  "affected_assemblies": [
+   "ASY-2201 Fin actuator"
+  ],
+  "schedule_impact_days": 8,
+  "cost_impact_usd": 9800,
+  "supplier": "Ridgeline Machining (US)",
+  "status": "pending_ccb"
+ }
+]

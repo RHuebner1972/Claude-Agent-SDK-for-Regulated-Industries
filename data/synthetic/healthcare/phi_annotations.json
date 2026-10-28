@@ -1,0 +1,130 @@
+{
+  "PA-2001": [
+    {
+      "type": "PERSON",
+      "value": "Maria Delgado"
+    },
+    {
+      "type": "DATE_TIME",
+      "value": "03/14/1961"
+    },
+    {
+      "type": "MRN",
+      "value": "4829173"
+    },
+    {
+      "type": "PHONE_NUMBER",
+      "value": "617-555-0143"
+    }
+  ],
+  "PA-2002": [
+    {
+      "type": "PERSON",
+      "value": "Okafor"
+    },
+    {
+      "type": "PERSON",
+      "value": "Grace Lin"
+    },
+    {
+      "type": "MEMBER_ID",
+      "value": "NEH553720481"
+    },
+    {
+      "type": "NPI",
+      "value": "1672938028"
+    }
+  ],
+  "PA-2003": [
+    {
+      "type": "PERSON",
+      "value": "Priya"
+    },
+    {
+      "type": "PERSON",
+      "value": "Raman"
+    },
+    {
+      "type": "MRN",
+      "value": "6110458"
+    },
+    {
+      "type": "EMAIL_ADDRESS",
+      "value": "priya.raman@example.com"
+    }
+  ],
+  "PA-2004": [
+    {
+      "type": "US_SSN",
+      "value": "923-50-1188"
+    },
+    {
+      "type": "STREET_ADDRESS",
+      "value": "233 Washington St"
+    },
+    {
+      "type": "US_ZIP",
+      "value": "02188"
+    },
+    {
+      "type": "LOCATION",
+      "value": "Weymouth"
+    }
+  ],
+  "PA-2005": [
+    {
+      "type": "PERSON",
+      "value": "Bennett"
+    },
+    {
+      "type": "MRN",
+      "value": "7728830"
+    },
+    {
+      "type": "PHONE_NUMBER",
+      "value": "617-555-0168"
+    }
+  ],
+  "PA-2006": [
+    {
+      "type": "DATE_TIME",
+      "value": "06/02/2026"
+    },
+    {
+      "type": "MEMBER_ID",
+      "value": "NEH221964730"
+    }
+  ],
+  "PA-2007": [
+    {
+      "type": "PERSON",
+      "value": "Elena Petrova"
+    },
+    {
+      "type": "DATE_TIME",
+      "value": "December 21, 1966"
+    },
+    {
+      "type": "PHONE_NUMBER",
+      "value": "617-555-0191"
+    },
+    {
+      "type": "EMAIL_ADDRESS",
+      "value": "elena.petrova@example.com"
+    }
+  ],
+  "PA-2008": [
+    {
+      "type": "PERSON",
+      "value": "Marcus"
+    },
+    {
+      "type": "PERSON",
+      "value": "Hill"
+    },
+    {
+      "type": "MRN",
+      "value": "9013375"
+    }
+  ]
+}

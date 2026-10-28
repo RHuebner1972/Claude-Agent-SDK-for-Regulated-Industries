@@ -1,0 +1,37 @@
+[
+  {
+    "provider_id": "PR-01",
+    "first_name": "Alan",
+    "last_name": "Brooks",
+    "specialty": "Orthopedics",
+    "npi": "1245319599"
+  },
+  {
+    "provider_id": "PR-02",
+    "first_name": "Grace",
+    "last_name": "Lin",
+    "specialty": "Endocrinology",
+    "npi": "1672938028"
+  },
+  {
+    "provider_id": "PR-03",
+    "first_name": "Samuel",
+    "last_name": "Adeyemi",
+    "specialty": "Rheumatology",
+    "npi": "1938572611"
+  },
+  {
+    "provider_id": "PR-04",
+    "first_name": "Hannah",
+    "last_name": "Weiss",
+    "specialty": "Neurology",
+    "npi": "1420865374"
+  },
+  {
+    "provider_id": "PR-05",
+    "first_name": "Diego",
+    "last_name": "Morales",
+    "specialty": "Cardiology",
+    "npi": "1587204938"
+  }
+]

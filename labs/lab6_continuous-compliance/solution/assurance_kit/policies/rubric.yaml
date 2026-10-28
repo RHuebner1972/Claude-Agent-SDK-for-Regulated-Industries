@@ -1,0 +1,276 @@
+# The 40-point rubric as data, with each pillar's regulatory anchors (from the Regulatory Mapping Framework).
+# The evidence pack scores against this file. Generated from the course plan; edit the plan, then regenerate.
+name: 40-point-rubric
+version: 1.0.0
+source: 00_Course-Plan/Seven_Pillars_and_40-Point_Rubric.md
+pillar_regulations:
+  P1:
+    HIPAA (45 CFR 164): 164.312(b) audit controls; 164.316(b)(2) six-year documentation retention
+    SOX: §404 ITGCs; audit-evidence retention (§802 / SEC Rule 2-06)
+    GLBA Safeguards (16 CFR 314): 314.4(c)(8) monitor and log authorized-user activity
+    FedRAMP (NIST SP 800-53 r5): AU family (AU-2, AU-3, AU-9, AU-11, AU-12)
+    CMMC L2 (NIST SP 800-171): 3.3 Audit & Accountability
+    FERPA (34 CFR 99): 99.32 record of disclosures
+    GDPR: Art. 5(2) accountability; Art. 30 records of processing
+    FDA (21 CFR 11 / 820): Part 11 §11.10(e) audit trails
+    EU AI Act (high-risk): Art. 12 record-keeping; Art. 19 / 26 log retention
+  P2:
+    HIPAA (45 CFR 164): 164.502(b) minimum necessary; 164.514 de-identification; 164.312(a)(2)(iv) encryption
+    SOX: Data integrity of financial records
+    GLBA Safeguards (16 CFR 314): 314.4(c)(3) encryption; 314.4(c)(6) disposal
+    FedRAMP (NIST SP 800-53 r5): SC-8, SC-28, MP family
+    CMMC L2 (NIST SP 800-171): 3.8 Media Protection; 3.13.11, 3.13.16
+    FERPA (34 CFR 99): 99.30 consent; 99.31 exceptions
+    GDPR: Art. 5(1)(c) minimisation; Art. 25 by design; Art. 32 pseudonymisation
+    FDA (21 CFR 11 / 820): §11.10(c) record protection
+    EU AI Act (high-risk): Art. 10 data governance
+  P3:
+    HIPAA (45 CFR 164): 164.312(a)(1) access control; 164.308(a)(4) access management
+    SOX: ITGC logical access
+    GLBA Safeguards (16 CFR 314): 314.4(c)(1) access controls; 314.4(c)(5) MFA
+    FedRAMP (NIST SP 800-53 r5): AC-2, AC-6, IA family
+    CMMC L2 (NIST SP 800-171): 3.1.1, 3.1.2, 3.1.5
+    FERPA (34 CFR 99): 99.31(a)(1) legitimate educational interest
+    GDPR: Art. 25(2) default minimisation; Art. 32
+    FDA (21 CFR 11 / 820): §11.10(d) limit access; §11.10(g) authority checks
+    EU AI Act (high-risk): Art. 15 cybersecurity
+  P4:
+    HIPAA (45 CFR 164): 164.308(a)(1) security management; 164.312(c) integrity
+    SOX: ITGC change management; application controls
+    GLBA Safeguards (16 CFR 314): 314.4(c)(7) change management
+    FedRAMP (NIST SP 800-53 r5): AC-3, AC-4, CM-3, SI-10
+    CMMC L2 (NIST SP 800-171): 3.4 Configuration Mgmt; 3.14 System Integrity
+    FERPA (34 CFR 99): (disclosure rules as policy)
+    GDPR: Art. 24 controller responsibility; Art. 22 safeguards
+    FDA (21 CFR 11 / 820): §11.10(f) operational checks; QMSR design controls
+    EU AI Act (high-risk): Art. 9 risk management; Art. 15 robustness
+  P5:
+    HIPAA (45 CFR 164): 164.308(a)(3) workforce security; professional-judgment rules
+    SOX: Segregation of duties; management review controls
+    GLBA Safeguards (16 CFR 314): 314.4(a) qualified individual; 314.4(i) board reporting
+    FedRAMP (NIST SP 800-53 r5): AC-5 separation of duties
+    CMMC L2 (NIST SP 800-171): 3.1.4 separation of duties
+    GDPR: Art. 22 right to human intervention
+    FDA (21 CFR 11 / 820): §11.50, §11.70, Subpart C e-signatures
+    EU AI Act (high-risk): Art. 14 human oversight
+  P6:
+    HIPAA (45 CFR 164): 164.504(e) / 164.308(b) business associates
+    SOX: Access to financial systems by function
+    GLBA Safeguards (16 CFR 314): 314.4(f) service-provider oversight
+    FedRAMP (NIST SP 800-53 r5): AC-4 info-flow enforcement; SC-4; SC-7
+    CMMC L2 (NIST SP 800-171): 3.1.3 control CUI flow; 3.13.1 boundary protection
+    FERPA (34 CFR 99): 99.33 limits on redisclosure
+    GDPR: Art. 28 processors; Arts. 44-49 transfers
+    FDA (21 CFR 11 / 820): QMSR purchasing / supplier controls
+    EU AI Act (high-risk): Art. 10 data governance
+  P7:
+    HIPAA (45 CFR 164): 164.308(a)(1)(ii)(A)-(B) risk analysis/management; 164.308(a)(6) incidents; 164.308(a)(8)
+      evaluation; 164.400-414 breach notification
+    SOX: §404 annual assessment; §302 certifications
+    GLBA Safeguards (16 CFR 314): 314.4(d) testing/monitoring; 314.4(h) IR plan; 314.4(j) FTC notification
+    FedRAMP (NIST SP 800-53 r5): CA-7 continuous monitoring; IR family; RA-5
+    CMMC L2 (NIST SP 800-171): 3.6 Incident Response; 3.12 Security Assessment; DFARS 7012 72-hour reporting
+    GDPR: Arts. 33-34 breach notification (72 h); Art. 35 DPIA
+    FDA (21 CFR 11 / 820): QMSR CAPA; 21 CFR 803 MDR; PCCP guidance
+    EU AI Act (high-risk): Art. 72 post-market monitoring; Art. 73 serious-incident reporting
+items:
+- id: '1.1'
+  pillar: P1
+  critical: false
+  criterion: Every user prompt, tool call, tool result and final output emits a schema-validated audit event.
+  evidence: AuditEvent schema; hook registration; sample log
+- id: '1.2'
+  pillar: P1
+  critical: true
+  criterion: Each event carries the human identity, agent identity, session ID and correlation ID.
+  evidence: Log sample; identity-propagation test
+- id: '1.3'
+  pillar: P1
+  critical: false
+  criterion: The audit log is tamper-evident (hash chain or signatures) and verification runs automatically.
+  evidence: Verifier output; tamper test
+- id: '1.4'
+  pillar: P1
+  critical: false
+  criterion: Audit storage is append-only/WORM, with retention set to the governing regulation.
+  evidence: Storage config; retention policy
+- id: '1.5'
+  pillar: P1
+  critical: false
+  criterion: Model ID, system-prompt version and policy version are recorded for every decision.
+  evidence: Log fields; version registry
+- id: '1.6'
+  pillar: P1
+  critical: false
+  criterion: A decision can be reconstructed end-to-end from logs alone (proven by a replay drill).
+  evidence: Replay-drill report
+- id: '2.1'
+  pillar: P2
+  critical: false
+  criterion: Sensitive data classes are inventoried and classified for every data source and tool.
+  evidence: Data inventory
+- id: '2.2'
+  pillar: P2
+  critical: true
+  criterion: PII/PHI is detected and masked before it reaches logs, traces and error messages.
+  evidence: Leak-scan results on synthetic set
+- id: '2.3'
+  pillar: P2
+  critical: false
+  criterion: Tools return only the minimum fields necessary for the task.
+  evidence: Tool schemas; field-minimization review
+- id: '2.4'
+  pillar: P2
+  critical: false
+  criterion: Reversible tokens live in an access-controlled vault, and every re-identification is logged.
+  evidence: Vault config; re-ID audit events
+- id: '2.5'
+  pillar: P2
+  critical: false
+  criterion: Detection recall is measured against a labeled synthetic set with a defined threshold.
+  evidence: Eval report
+- id: '2.6'
+  pillar: P2
+  critical: false
+  criterion: Retention and deletion (including session transcripts) are configured and tested.
+  evidence: Retention config; deletion test
+- id: '3.1'
+  pillar: P3
+  critical: true
+  criterion: The agent runs with an explicit tool allowlist; unneeded built-in tools are disabled.
+  evidence: ClaudeAgentOptions; tool inventory
+- id: '3.2'
+  pillar: P3
+  critical: false
+  criterion: No permission-bypass mode in production; the permission mode is documented and justified.
+  evidence: Config; design record
+- id: '3.3'
+  pillar: P3
+  critical: false
+  criterion: Agent credentials are scoped, short-lived and separate from human credentials.
+  evidence: IAM policy; secret rotation
+- id: '3.4'
+  pillar: P3
+  critical: false
+  criterion: MCP servers and settings are explicitly configured; nothing loads ambiently.
+  evidence: Strict MCP config; settings sources
+- id: '3.5'
+  pillar: P3
+  critical: false
+  criterion: The runtime sandbox restricts filesystem access and network egress to an allowlist.
+  evidence: Container/network policy; egress test
+- id: '4.1'
+  pillar: P4
+  critical: false
+  criterion: Policies live as versioned code/config, separate from prompts.
+  evidence: Policy repo; version tags
+- id: '4.2'
+  pillar: P4
+  critical: true
+  criterion: Every tool call is evaluated by the policy engine before execution.
+  evidence: Hook/permission-callback wiring; test
+- id: '4.3'
+  pillar: P4
+  critical: false
+  criterion: Denials return a reason to the agent and are logged with the rule ID.
+  evidence: Deny log sample
+- id: '4.4'
+  pillar: P4
+  critical: false
+  criterion: Tool inputs and outputs are validated with typed schemas (Pydantic).
+  evidence: Models; validation tests
+- id: '4.5'
+  pillar: P4
+  critical: false
+  criterion: Untrusted content (documents, web, email) cannot escalate privileges; injection tests pass.
+  evidence: Red-team results
+- id: '4.6'
+  pillar: P4
+  critical: false
+  criterion: Policies have unit tests and go through change control (review and approval).
+  evidence: Test suite; PR approvals
+- id: '5.1'
+  pillar: P5
+  critical: true
+  criterion: High-impact actions are classified and require human approval before execution.
+  evidence: Action-risk register; gate test
+- id: '5.2'
+  pillar: P5
+  critical: false
+  criterion: The approver sees the proposed action, evidence and agent rationale in one view.
+  evidence: Approval UI/record sample
+- id: '5.3'
+  pillar: P5
+  critical: false
+  criterion: 'Segregation of duties: requesters cannot approve their own actions; four-eyes where required.'
+  evidence: SoD rule; negative test
+- id: '5.4'
+  pillar: P5
+  critical: false
+  criterion: Approvals record signer identity, meaning of the signature and timestamp.
+  evidence: Approval record schema
+- id: '5.5'
+  pillar: P5
+  critical: false
+  criterion: Timeouts and escalation paths are defined; nothing auto-approves on timeout.
+  evidence: Escalation config; timeout test
+- id: '5.6'
+  pillar: P5
+  critical: false
+  criterion: An override / kill switch exists and has been tested.
+  evidence: Kill-switch drill record
+- id: '6.1'
+  pillar: P6
+  critical: false
+  criterion: Each agent and subagent has a documented data scope and tool set (need-to-know).
+  evidence: Agent cards
+- id: '6.2'
+  pillar: P6
+  critical: true
+  criterion: Cross-boundary handoffs use typed contracts that strip disallowed fields.
+  evidence: Handoff models; boundary test
+- id: '6.3'
+  pillar: P6
+  critical: false
+  criterion: Sessions and memory cannot leak between customers, patients or cases.
+  evidence: Isolation test
+- id: '6.4'
+  pillar: P6
+  critical: false
+  criterion: Inference and storage locations meet residency and sovereignty requirements.
+  evidence: Deployment region config; contract
+- id: '6.5'
+  pillar: P6
+  critical: false
+  criterion: Boundary tests prove restricted data cannot reach unauthorized agents.
+  evidence: Test results
+- id: '7.1'
+  pillar: P7
+  critical: true
+  criterion: The compliance eval suite runs in CI on every prompt, policy, tool or model change.
+  evidence: CI config; run history
+- id: '7.2'
+  pillar: P7
+  critical: false
+  criterion: A red-team suite (injection, exfiltration, policy evasion) runs on a schedule.
+  evidence: Schedule; latest results
+- id: '7.3'
+  pillar: P7
+  critical: false
+  criterion: Runtime metrics and alerts cover policy denials, PII detections, approval latency, cost and errors.
+  evidence: Dashboard; alert rules
+- id: '7.4'
+  pillar: P7
+  critical: false
+  criterion: Model and version changes go through documented re-validation.
+  evidence: Change records
+- id: '7.5'
+  pillar: P7
+  critical: false
+  criterion: The incident-response runbook covers agent-specific scenarios and notification timelines.
+  evidence: Runbook; tabletop record
+- id: '7.6'
+  pillar: P7
+  critical: false
+  criterion: The evidence pack is generated automatically and mapped to regulatory controls.
+  evidence: Evidence pack output
